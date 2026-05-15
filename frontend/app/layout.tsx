@@ -1,26 +1,37 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-import { Sidebar } from "@/components/layout/sidebar";
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: "OmniRoute AI",
-  description: "Intelligent Multi-Model Agent Orchestration Platform",
+  title: {
+    default: "OmniRoute AI — Intelligent Multi-Model Agent Orchestration",
+    template: "%s | OmniRoute AI",
+  },
+  description:
+    "Dynamically route tasks to the best AI models and agents based on complexity, cost, and performance. Build smarter agentic workflows.",
+  keywords: ["AI", "orchestration", "multi-model", "agent", "routing", "LLM", "workflow"],
+  openGraph: {
+    title: "OmniRoute AI — Intelligent Multi-Model Agent Orchestration",
+    description: "Dynamically route tasks to the best AI models and agents.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_Y2xlcmsuZGV2ZWxvcG1lbnQk";
+  const publishableKey =
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_Y2xlcmsuZGV2ZWxvcG1lbnQk";
 
   return (
     <ClerkProvider publishableKey={publishableKey}>
-      <html lang="en" className="dark">
-        <body>
-          <div className="glass-grid min-h-screen">
-            <Sidebar />
-            <main className="px-4 pb-8 pt-24 lg:ml-72 lg:px-8 lg:pt-8">{children}</main>
-          </div>
-        </body>
+      <html lang="en" className={`dark ${inter.variable}`} suppressHydrationWarning>
+        <body className="font-sans antialiased">{children}</body>
       </html>
     </ClerkProvider>
   );
