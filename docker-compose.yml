@@ -1,0 +1,60 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-omniroute}
+      POSTGRES_USER: ${POSTGRES_USER:-omniroute}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-omniroute}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/001-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-omniroute} -d ${POSTGRES_DB:-omniroute}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ENVIRONMENT: development
+      FRONTEND_ORIGIN: http://localhost:3000
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://omniroute:omniroute@postgres:5432/omniroute}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      OLLAMA_STRICT: "false"
+      SIMPLE_MODEL: llama3
+      BALANCED_MODEL: mistral
+      CODING_MODEL: deepseek-coder
+      REASONING_MODEL: deepseek-r1
+      FALLBACK_MODEL: phi3
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  ollama_data:

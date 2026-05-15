@@ -1,0 +1,23 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+import { Sidebar } from "@/components/layout/sidebar";
+
+export const metadata: Metadata = {
+  title: "OmniRoute AI",
+  description: "Intelligent Multi-Model Agent Orchestration Platform",
+};
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return (
+    <html lang="en" className="dark">
+      <body>
+        <div className="glass-grid min-h-screen">
+          <Sidebar />
+          <main className="px-4 pb-8 pt-24 lg:ml-72 lg:px-8 lg:pt-8">{children}</main>
+        </div>
+      </body>
+    </html>
+  );
+}
+
