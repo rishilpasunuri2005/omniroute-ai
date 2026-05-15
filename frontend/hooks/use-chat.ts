@@ -19,7 +19,8 @@ interface UiMessage extends ChatMessage {
 }
 
 export function useChat() {
-  const { getToken } = useAuth();
+  const auth = useAuth();
+  const getToken = auth?.getToken || (async () => null);
   const [messages, setMessages] = useState<UiMessage[]>([
     {
       id: "welcome",

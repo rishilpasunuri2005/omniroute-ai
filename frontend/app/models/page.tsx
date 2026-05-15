@@ -12,7 +12,8 @@ import type { ModelInfo } from "@/types/api";
 import { compactNumber } from "@/lib/utils";
 
 export default function ModelsPage() {
-  const { getToken } = useAuth();
+  const auth = useAuth();
+  const getToken = auth?.getToken || (async () => null);
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

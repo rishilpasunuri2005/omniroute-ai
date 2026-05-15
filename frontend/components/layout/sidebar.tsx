@@ -29,7 +29,7 @@ export function Sidebar() {
           <p className="truncate text-xs text-muted-foreground">Multi-model orchestration</p>
         </div>
         <div className="ml-auto">
-          <UserButton />
+          {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && <UserButton />}
         </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible lg:px-4">

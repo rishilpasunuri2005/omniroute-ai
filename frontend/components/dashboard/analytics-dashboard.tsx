@@ -13,7 +13,8 @@ import type { AnalyticsResponse } from "@/types/api";
 import { compactNumber, formatMs } from "@/lib/utils";
 
 export function AnalyticsDashboard() {
-  const { getToken } = useAuth();
+  const auth = useAuth();
+  const getToken = auth?.getToken || (async () => null);
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
