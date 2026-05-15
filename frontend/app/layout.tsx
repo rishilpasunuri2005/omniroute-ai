@@ -10,16 +10,22 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <ClerkProvider>
-      <html lang="en" className="dark">
-        <body>
-          <div className="glass-grid min-h-screen">
-            <Sidebar />
-            <main className="px-4 pb-8 pt-24 lg:ml-72 lg:px-8 lg:pt-8">{children}</main>
-          </div>
-        </body>
-      </html>
-    </ClerkProvider>
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const content = (
+    <html lang="en" className="dark">
+      <body>
+        <div className="glass-grid min-h-screen">
+          <Sidebar />
+          <main className="px-4 pb-8 pt-24 lg:ml-72 lg:px-8 lg:pt-8">{children}</main>
+        </div>
+      </body>
+    </html>
   );
+
+  if (!publishableKey) {
+    return content;
+  }
+
+  return <ClerkProvider publishableKey={publishableKey}>{content}</ClerkProvider>;
 }
