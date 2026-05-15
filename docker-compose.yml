@@ -16,40 +16,38 @@ services:
       timeout: 5s
       retries: 5
 
-  ollama:
-    image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-
   backend:
     build:
       context: ./backend
     environment:
       ENVIRONMENT: development
       FRONTEND_ORIGIN: http://localhost:3000
+      ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
       DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://omniroute:omniroute@postgres:5432/omniroute}
-      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
-      OLLAMA_STRICT: "false"
-      SIMPLE_MODEL: llama3
-      BALANCED_MODEL: mistral
-      CODING_MODEL: deepseek-coder
-      REASONING_MODEL: deepseek-r1
-      FALLBACK_MODEL: phi3
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-true}
+      CLERK_ISSUER: ${CLERK_ISSUER}
+      CLERK_JWKS_URL: ${CLERK_JWKS_URL}
+      CLERK_AUDIENCE: ${CLERK_AUDIENCE}
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      SIMPLE_MODEL: llama-3.1-8b-instant
+      BALANCED_MODEL: llama-3.3-70b-versatile
+      CODING_MODEL: deepseek/deepseek-coder
+      REASONING_MODEL: deepseek/deepseek-r1
+      FALLBACK_MODEL: openai/gpt-oss-20b
     ports:
       - "8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
-      ollama:
-        condition: service_started
 
   frontend:
     build:
       context: ./frontend
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: ${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      CLERK_SECRET_KEY: ${CLERK_SECRET_KEY}
     ports:
       - "3000:3000"
     depends_on:
@@ -57,4 +55,3 @@ services:
 
 volumes:
   postgres_data:
-  ollama_data:

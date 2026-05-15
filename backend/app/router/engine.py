@@ -27,10 +27,20 @@ class RoutingEngine:
             selected_model = mappings["simple"]
             reason = "Short or simple work was routed to the low-latency model."
 
+        if selected_model == mappings["coding"]:
+            provider_key = "coding"
+        elif selected_model == mappings["complex"]:
+            provider_key = "complex"
+        elif selected_model == mappings["medium"]:
+            provider_key = "medium"
+        else:
+            provider_key = "simple"
+
         return RouteResponse(
             classification=classification,
             selected_model=selected_model,
+            provider=self.settings.provider_by_route[provider_key],
             fallback_model=mappings["fallback"],
+            fallback_provider=self.settings.provider_by_route["fallback"],
             reason=reason,
         )
-

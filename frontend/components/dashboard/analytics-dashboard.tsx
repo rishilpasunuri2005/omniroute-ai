@@ -2,16 +2,18 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Activity, Clock3, Coins, GitFork, Layers3, RefreshCcw, Sigma } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { fetchAnalytics } from "@/services/api";
+import { fetchAnalyticsWithToken } from "@/services/api";
 import type { AnalyticsResponse } from "@/types/api";
 import { compactNumber, formatMs } from "@/lib/utils";
 
 export function AnalyticsDashboard() {
+  const { getToken } = useAuth();
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export function AnalyticsDashboard() {
     setLoading(true);
     setError(null);
     try {
-      setData(await fetchAnalytics());
+      setData(await fetchAnalyticsWithToken(await getToken()));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load analytics");
     } finally {

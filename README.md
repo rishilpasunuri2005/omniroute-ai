@@ -2,121 +2,153 @@
 
 Intelligent Multi-Model Agent Orchestration Platform
 
-OmniRoute AI is a production-style MVP for routing AI tasks across local open-source models through Ollama. It classifies prompts, selects a model, runs a multi-agent workflow, validates responses, records usage, and displays routing analytics.
+OmniRoute AI is a security-first AI SaaS platform for routing prompts across Groq and OpenRouter models, coordinating LangGraph agents, validating AI output, tracking token usage, and analyzing model performance.
 
-## Architecture Plan
+## Architecture
 
-The system is split into two deployable apps plus infrastructure:
-
-- `frontend/`: Next.js 15, React, TypeScript, Tailwind CSS, shadcn-style components.
-- `backend/`: FastAPI, async Python services, routing engine, agent workflow, Ollama integration, PostgreSQL persistence.
-- `database/`: PostgreSQL schema used by Docker initialization.
-- `docker-compose.yml`: PostgreSQL, Ollama, backend, and frontend services.
+- `frontend/`: Next.js 15, React, TypeScript, Tailwind CSS, shadcn-style components, Clerk authentication.
+- `backend/`: FastAPI, LangGraph workflow orchestration, SQLAlchemy async ORM, SlowAPI rate limiting, Clerk JWT verification.
+- `database/`: PostgreSQL schema for users, chats, workflows, routing logs, analytics, token usage, API keys, and model metrics.
+- `docker-compose.yml`: PostgreSQL, backend, and frontend services.
+- `railway.json`: Railway backend deployment configuration.
 
 Request flow:
 
-1. User submits a prompt in the chat UI.
-2. FastAPI `/chat` calls the Router Agent.
-3. The classifier returns `{ task_type, complexity, confidence }`.
-4. Routing rules select `llama3`, `mistral`, `deepseek-coder`, `deepseek-r1`, or fallback `phi3`.
-5. Planner/Coding/Specialized agent generates the response through Ollama.
-6. Validation Agent checks empty responses, malformed JSON, risk markers, and incomplete output.
-7. Metrics are persisted to PostgreSQL and shown on the dashboard.
+1. Clerk authenticates the user in Next.js.
+2. Frontend sends only a Clerk bearer token to FastAPI.
+3. FastAPI verifies the JWT using Clerk JWKS.
+4. `/chat` rate limits the request at `10/minute` per token/IP.
+5. Router classifies `{ task_type, complexity, confidence }`.
+6. LangGraph runs Router -> Planner/Specialized Agent -> Validation Agent.
+7. Groq/OpenRouter calls happen only on the backend.
+8. PostgreSQL records routing logs, token usage, latency, and model metrics.
 
-## Implementation Phases
+## Security Architecture
 
-1. Scaffold monorepo structure and environment configuration.
-2. Implement FastAPI backend: schemas, router, agents, Ollama client, validation, analytics.
-3. Implement frontend: chat, dashboard, models, workflows, settings.
-4. Add Docker, database schema, and environment examples.
-5. Verify imports, TypeScript structure, and runtime startup commands.
+- Secrets stay server-side. Frontend uses only `NEXT_PUBLIC_*` values.
+- Clerk handles authentication; no custom password auth is implemented.
+- Backend verifies JWT issuer, signature, expiration, and optional audience.
+- All public APIs have SlowAPI rate limits:
+  - AI routes: `10/minute`
+  - General APIs: `60/minute`
+  - Auth endpoints are delegated to Clerk; no backend password endpoints exist.
+- Pydantic validates API input size, enums, required fields, and history length.
+- SQLAlchemy ORM is used for runtime database operations.
+- CORS is allowlist-based via `ALLOWED_ORIGINS`.
+- Backend and frontend emit CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy.
+- AI prompts and outputs are sanitized before provider calls and rendering.
+- Per-user daily token budget is enforced before model execution.
+- Errors return generic messages; details are logged server-side.
 
-## Backend API
+## APIs
 
-- `POST /chat`: routes and executes a prompt. Supports `stream: true` with newline-delimited JSON events.
-- `POST /route`: returns only classification and selected model.
-- `GET /analytics`: token usage, routing distribution, average latency, utilization, savings.
-- `GET /models`: configured Ollama model mappings and local availability.
-- `GET /health`: service health.
+- `POST /chat`: authenticated, rate-limited AI workflow. Supports `stream: true` NDJSON.
+- `POST /route`: authenticated route preview.
+- `GET /analytics`: authenticated usage and routing analytics.
+- `GET /models`: authenticated configured model/provider status.
+- `POST /workflow/create`: authenticated workflow definition creation.
+- `GET /health`: public health check.
 
 ## Routing Defaults
 
-- Simple prompts: `llama3`
-- Medium prompts: `mistral`
-- Coding/debugging: `deepseek-coder`
-- Complex reasoning: `deepseek-r1`
-- Validation repair/fallback: `phi3`
+- Simple: Groq `llama-3.1-8b-instant`
+- Medium: Groq `llama-3.3-70b-versatile`
+- Coding/debugging: OpenRouter `deepseek/deepseek-coder`
+- Complex reasoning: OpenRouter `deepseek/deepseek-r1`
+- Validation fallback: OpenRouter `openai/gpt-oss-20b`
 
-## Local Setup
+## Environment
 
-### Docker
+Copy examples before running:
 
-```bash
-cp .env.example .env
-docker compose up --build
+```powershell
+copy .env.example .env
+copy backend\.env.example backend\.env
+copy frontend\.env.example frontend\.env.local
 ```
 
-Then open:
+Backend secrets:
 
-- Frontend: `http://localhost:3000`
-- Backend docs: `http://localhost:8000/docs`
-- Ollama: `http://localhost:11434`
+- `DATABASE_URL`
+- `AUTH_REQUIRED`
+- `CLERK_ISSUER`
+- `CLERK_JWKS_URL`
+- `CLERK_AUDIENCE`
+- `GROQ_API_KEY`
+- `OPENROUTER_API_KEY`
+- `SENTRY_DSN`
+- `LANGSMITH_API_KEY`
 
-Pull local models into the Ollama container:
+Frontend public config:
 
-```bash
-docker compose exec ollama ollama pull llama3
-docker compose exec ollama ollama pull mistral
-docker compose exec ollama ollama pull deepseek-coder
-docker compose exec ollama ollama pull phi3
-```
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
 
-If `deepseek-r1` is unavailable in your Ollama registry, set `REASONING_MODEL` to a locally installed reasoning-capable model in `backend/.env` or `docker-compose.yml`.
+Frontend server config:
 
-### Manual Development
+- `CLERK_SECRET_KEY`
+
+## Local Development
 
 Backend:
 
-```bash
+```powershell
 cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env
 uvicorn app.main:app --reload
 ```
 
 Frontend:
 
-```bash
+```powershell
 cd frontend
 npm install
-copy .env.example .env.local
 npm run dev
 ```
 
-## Environment Variables
+Docker:
 
-Backend:
+```powershell
+docker compose up --build
+```
 
-- `DATABASE_URL` using the async SQLAlchemy psycopg driver, for example `postgresql+psycopg://omniroute:omniroute@localhost:5432/omniroute`
-- `OLLAMA_BASE_URL`
-- `OLLAMA_STRICT`
-- `SIMPLE_MODEL`
-- `BALANCED_MODEL`
-- `CODING_MODEL`
-- `REASONING_MODEL`
-- `FALLBACK_MODEL`
-- `ROUTE_CONFIDENCE_THRESHOLD`
+Open:
 
-Frontend:
+- Frontend: `http://localhost:3000`
+- Backend docs: `http://localhost:8000/docs`
 
-- `NEXT_PUBLIC_API_URL`
+## Deployment
 
-## Notes For Production Hardening
+Backend on Railway:
 
-- Replace startup `create_all` with Alembic migrations.
-- Add authentication, tenant isolation, and rate limits.
-- Add a provider interface for GPT, Claude, and Gemini APIs.
-- Add prompt/version telemetry and evaluation datasets.
-- Add background job processing for long-running workflows.
+1. Create a Railway service from this repository.
+2. Use `railway.json`.
+3. Set backend environment variables from `backend/.env.example`.
+4. Provision PostgreSQL and set `DATABASE_URL`.
+
+Frontend on Vercel:
+
+1. Set project root to `frontend`.
+2. Set `NEXT_PUBLIC_API_URL` to the Railway backend URL.
+3. Set Clerk frontend/server keys.
+4. Configure Clerk allowed origins and redirect URLs.
+
+## Verification
+
+```powershell
+cd backend
+.venv\Scripts\python.exe -m pytest
+
+cd ..\frontend
+npm run build
+npm audit --audit-level=high
+```
+
+## Production Notes
+
+- Replace startup `Base.metadata.create_all` with Alembic migrations before high-scale production.
+- Use Redis-backed SlowAPI storage for multi-instance rate limiting.
+- Add tenant-scoped analytics filters if organization-level Clerk accounts are enabled.
+- Add provider key rotation workflows before exposing API key management in the UI.

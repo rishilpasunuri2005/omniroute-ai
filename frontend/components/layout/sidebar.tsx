@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserButton } from "@clerk/nextjs";
 import { BarChart3, Bot, GitBranch, MessageSquare, Settings, Workflow } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -27,6 +28,9 @@ export function Sidebar() {
           <p className="truncate text-sm font-semibold">OmniRoute AI</p>
           <p className="truncate text-xs text-muted-foreground">Multi-model orchestration</p>
         </div>
+        <div className="ml-auto">
+          <UserButton />
+        </div>
       </div>
       <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible lg:px-4">
         {navItems.map((item) => {
@@ -50,4 +54,3 @@ export function Sidebar() {
     </aside>
   );
 }
-

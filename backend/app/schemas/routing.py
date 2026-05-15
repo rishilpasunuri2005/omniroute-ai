@@ -19,7 +19,9 @@ class RouteRequest(BaseModel):
 class RouteResponse(BaseModel):
     classification: Classification
     selected_model: str
+    provider: str
     fallback_model: str
+    fallback_provider: str
     reason: str
 
 
@@ -27,4 +29,3 @@ class ValidationResult(BaseModel):
     passed: bool
     risk_level: Literal["low", "medium", "high"]
     issues: list[str] = Field(default_factory=list)
-

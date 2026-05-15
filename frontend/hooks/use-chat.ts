@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 
 import { streamChat } from "@/services/api";
 import type { ChatMessage, ChatResponse, Classification, Usage, WorkflowStep } from "@/types/api";
+import { sanitizeText } from "@/lib/sanitize";
 
 interface UiMessage extends ChatMessage {
   id: string;
@@ -17,6 +19,7 @@ interface UiMessage extends ChatMessage {
 }
 
 export function useChat() {
+  const { getToken } = useAuth();
   const [messages, setMessages] = useState<UiMessage[]>([
     {
       id: "welcome",
@@ -41,18 +44,20 @@ export function useChat() {
     setIsLoading(true);
     const userMessage: UiMessage = { id: crypto.randomUUID(), role: "user", content: prompt.trim() };
     const assistantId = crypto.randomUUID();
+    const sanitizedPrompt = sanitizeText(prompt.trim());
     setMessages((current) => [
       ...current,
-      userMessage,
+      { ...userMessage, content: sanitizedPrompt },
       { id: assistantId, role: "assistant", content: "" },
     ]);
 
     try {
-      await streamChat(prompt.trim(), conversationId, apiHistory, (event) => {
+      const token = await getToken();
+      await streamChat(token, sanitizedPrompt, conversationId, apiHistory, (event) => {
         if (event.type === "token") {
           setMessages((current) =>
             current.map((message) =>
-              message.id === assistantId ? { ...message, content: message.content + event.content } : message,
+              message.id === assistantId ? { ...message, content: sanitizeText(message.content + event.content) } : message,
             ),
           );
         }
@@ -81,7 +86,7 @@ export function useChat() {
               message.id === assistantId
                 ? {
                     ...message,
-                    content: event.result.response,
+                    content: sanitizeText(event.result.response),
                     metadata: {
                       model: event.result.model_used,
                       latencyMs: event.result.latency_ms,
@@ -104,4 +109,3 @@ export function useChat() {
 
   return { messages, isLoading, error, lastResult, submit };
 }
-

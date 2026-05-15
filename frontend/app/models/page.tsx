@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useAuth } from "@clerk/nextjs";
 import { Bot, CheckCircle2, CircleAlert, DatabaseZap, RefreshCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +12,7 @@ import type { ModelInfo } from "@/types/api";
 import { compactNumber } from "@/lib/utils";
 
 export default function ModelsPage() {
+  const { getToken } = useAuth();
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +21,7 @@ export default function ModelsPage() {
     setLoading(true);
     setError(null);
     try {
-      setModels(await fetchModels());
+      setModels(await fetchModels(await getToken()));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load models");
     } finally {
@@ -104,4 +106,3 @@ export default function ModelsPage() {
     </div>
   );
 }
-
