@@ -3,19 +3,20 @@ import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
-// Check if Clerk keys are present
 const hasClerkKeys = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && !!process.env.CLERK_SECRET_KEY;
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!hasClerkKeys) {
-    // If keys are missing, allow all routes but log a warning (in dev/logs)
-    return NextResponse.next();
-  }
-
+// Create the handler function separately
+const clerkHandler = async (auth: any, req: any) => {
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
-});
+};
+
+// If we don't have keys, export a simple pass-through middleware
+// This prevents clerkMiddleware from throwing an initialization error
+export default hasClerkKeys
+  ? clerkMiddleware(clerkHandler)
+  : () => NextResponse.next();
 
 export const config = {
   matcher: [
