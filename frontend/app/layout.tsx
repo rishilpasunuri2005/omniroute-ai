@@ -25,14 +25,21 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const publishableKey =
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || "pk_test_Y2xlcmsuZGV2ZWxvcG1lbnQk";
+  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
+  const content = (
+    <html lang="en" className={`dark ${inter.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased">{children}</body>
+    </html>
+  );
+
+  if (!publishableKey) {
+    return content;
+  }
 
   return (
     <ClerkProvider publishableKey={publishableKey}>
-      <html lang="en" className={`dark ${inter.variable}`} suppressHydrationWarning>
-        <body className="font-sans antialiased">{children}</body>
-      </html>
+      {content}
     </ClerkProvider>
   );
 }
