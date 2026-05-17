@@ -48,7 +48,7 @@ export function ChatConsole() {
                     : "max-w-[86%] rounded-lg border border-border bg-card/80 px-4 py-3 text-sm"
                 }
               >
-                <p className="whitespace-pre-wrap leading-6">{message.content || "Routing through agents..."}</p>
+                <p className="whitespace-pre-wrap leading-6">{message.content || message.statusText || "Routing through agents..."}</p>
                 {message.metadata ? (
                   <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3 text-xs text-muted-foreground">
                     <span className="inline-flex items-center gap-1">

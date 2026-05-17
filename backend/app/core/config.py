@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = Field(default=None, validation_alias="OPENROUTER_API_KEY")
     openrouter_site_url: str = Field(default="http://localhost:3000", validation_alias="OPENROUTER_SITE_URL")
     openrouter_app_name: str = Field(default="OmniRoute AI", validation_alias="OPENROUTER_APP_NAME")
-    ai_timeout_seconds: float = 300.0
+    ai_timeout_seconds: float = 120.0
 
     simple_model: str = "llama-3.1-8b-instant"
     balanced_model: str = "llama-3.3-70b-versatile"

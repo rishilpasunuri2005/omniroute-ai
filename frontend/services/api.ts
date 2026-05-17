@@ -21,29 +21,43 @@ export async function streamChat(
   history: ChatMessage[],
   onEvent: (event: StreamEvent) => void,
 ) {
-  const response = await fetch(`${API_URL}/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders(token) },
-    body: JSON.stringify({ prompt, conversation_id: conversationId, history, stream: true }),
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 90_000);
 
-  if (!response.ok || !response.body) {
-    throw new Error(await response.text());
-  }
+  try {
+    const response = await fetch(`${API_URL}/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders(token) },
+      body: JSON.stringify({ prompt, conversation_id: conversationId, history, stream: true }),
+      signal: controller.signal,
+    });
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      if (line.trim()) onEvent(JSON.parse(line) as StreamEvent);
+    if (!response.ok || !response.body) {
+      throw new Error(await response.text());
     }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        if (line.trim()) onEvent(JSON.parse(line) as StreamEvent);
+      }
+    }
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      onEvent({ type: "error", message: "Request timed out after 90 seconds. Please try a simpler prompt." } as StreamEvent);
+      return;
+    }
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 

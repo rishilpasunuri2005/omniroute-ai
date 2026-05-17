@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
@@ -18,6 +19,8 @@ from app.security.auth import AuthContext, get_current_user, require_role
 from app.security.rate_limit import limiter
 from app.services.users import get_or_create_user
 from app.workflows.orchestration import AgentWorkflow
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -50,7 +53,7 @@ async def chat(
     workflow = AgentWorkflow(settings)
     if payload.stream:
         return StreamingResponse(
-            _stream_chat(workflow, payload, session, user),
+            _stream_chat(workflow, payload, session, user, settings),
             media_type="application/x-ndjson",
         )
     return await workflow.run(payload, session, user)
@@ -111,21 +114,65 @@ async def create_workflow(
     )
 
 
-async def _stream_chat(workflow: AgentWorkflow, payload: ChatRequest, session: AsyncSession, user: AuthContext):
+_MAX_STREAM_WAIT_SECONDS = 120
+
+
+async def _stream_chat(
+    workflow: AgentWorkflow,
+    payload: ChatRequest,
+    session: AsyncSession,
+    user: AuthContext,
+    settings: Settings,
+):
     import asyncio
-    yield json.dumps({"type": "status", "message": "Routing request"}) + "\n"
-    
+    import time
+
+    yield json.dumps({"type": "status", "message": "Routing request..."}) + "\n"
+
     task = asyncio.create_task(workflow.run(payload, session, user))
+    start = time.monotonic()
+
     try:
         while not task.done():
-            done, pending = await asyncio.wait([task], timeout=5.0)
-            if task in done:
+            elapsed = time.monotonic() - start
+            if elapsed > _MAX_STREAM_WAIT_SECONDS:
+                task.cancel()
+                logger.error("stream_chat_timeout prompt=%s elapsed=%.1fs", payload.prompt[:80], elapsed)
+                yield json.dumps({"type": "error", "message": "Request timed out. Please try again with a simpler prompt."}) + "\n"
+                return
+
+            _, _ = await asyncio.wait([task], timeout=3.0)
+            if task.done():
                 break
-            yield json.dumps({"type": "status", "message": "Thinking..."}) + "\n"
+            yield json.dumps({"type": "status", "message": "Processing..."}) + "\n"
+
+        # task is done — check for exceptions
+        exc = task.exception() if not task.cancelled() else None
+        if exc is not None:
+            logger.exception("stream_chat_task_error", exc_info=exc)
+            detail = str(exc)
+            # Don't leak internal details to the client
+            if "provider" in detail.lower() or "api" in detail.lower():
+                detail = "AI provider returned an error. Please try again."
+            elif "database" in detail.lower() or "postgres" in detail.lower() or "sqlalchemy" in detail.lower():
+                detail = "Database connection error. Please try again later."
+            elif "budget" in detail.lower() or "token" in detail.lower():
+                detail = "Daily token budget exceeded."
+            else:
+                detail = f"Something went wrong: {detail}"
+            yield json.dumps({"type": "error", "message": detail}) + "\n"
+            return
+
         result = task.result()
     except asyncio.CancelledError:
         task.cancel()
-        raise
+        yield json.dumps({"type": "error", "message": "Request was cancelled."}) + "\n"
+        return
+    except Exception as exc:
+        logger.exception("stream_chat_unexpected_error")
+        yield json.dumps({"type": "error", "message": f"Unexpected error: {exc}"}) + "\n"
+        return
+
     yield json.dumps(
         {
             "type": "metadata",

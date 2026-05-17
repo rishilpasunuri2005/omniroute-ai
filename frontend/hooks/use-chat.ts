@@ -9,6 +9,7 @@ import { sanitizeText } from "@/lib/sanitize";
 
 interface UiMessage extends ChatMessage {
   id: string;
+  statusText?: string;
   metadata?: {
     model?: string;
     latencyMs?: number;
@@ -55,10 +56,21 @@ export function useChat() {
     try {
       const token = await getToken();
       await streamChat(token, sanitizedPrompt, conversationId, apiHistory, (event) => {
+        if (event.type === "status") {
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === assistantId ? { ...message, statusText: event.message } : message,
+            ),
+          );
+        }
+        if (event.type === "error") {
+          setError(event.message || "An error occurred while processing your request.");
+          setMessages((current) => current.filter((m) => m.id !== assistantId));
+        }
         if (event.type === "token") {
           setMessages((current) =>
             current.map((message) =>
-              message.id === assistantId ? { ...message, content: sanitizeText(message.content + event.content) } : message,
+              message.id === assistantId ? { ...message, statusText: undefined, content: sanitizeText(message.content + event.content) } : message,
             ),
           );
         }
@@ -87,6 +99,7 @@ export function useChat() {
               message.id === assistantId
                 ? {
                     ...message,
+                    statusText: undefined,
                     content: sanitizeText(event.result.response),
                     metadata: {
                       model: event.result.model_used,
