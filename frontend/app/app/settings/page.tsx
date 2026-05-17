@@ -155,23 +155,7 @@ export default function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-4">
-              <div className="flex items-center gap-3">
-                {darkMode ? <Moon className="h-4 w-4 text-primary" /> : <Sun className="h-4 w-4 text-amber-400" />}
-                <div>
-                  <p className="text-sm font-medium">Dark Mode</p>
-                  <p className="text-xs text-muted-foreground">Use dark theme throughout the app</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${darkMode ? "bg-primary" : "bg-white/10"}`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${darkMode ? "left-[22px]" : "left-0.5"}`}
-                />
-              </button>
-            </div>
+
             <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-4">
               <div className="flex items-center gap-3">
                 <Bell className="h-4 w-4 text-primary" />
