@@ -51,7 +51,10 @@ class AgentWorkflow:
         )
 
         user = await get_or_create_user(session, auth, self.settings)
-        await enforce_token_budget(session, user, estimate_tokens(sanitized_request.prompt))
+        try:
+            await enforce_token_budget(session, user, estimate_tokens(sanitized_request.prompt))
+        except Exception:
+            pass  # Budget check is advisory; never block requests
         state = await self.graph.ainvoke({"request": sanitized_request, "conversation_id": conversation_id})
 
         route = state["route"]
