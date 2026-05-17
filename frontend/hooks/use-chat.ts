@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/hooks/use-auth";
 
 import { streamChat } from "@/services/api";
 import type { ChatMessage, ChatResponse, Classification, Usage, WorkflowStep } from "@/types/api";

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/hooks/use-auth";
 import { Activity, Clock3, Coins, GitFork, Layers3, RefreshCcw, Sigma } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";

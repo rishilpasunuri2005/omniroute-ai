@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/hooks/use-auth";
 import { Bot, CheckCircle2, CircleAlert, DatabaseZap, RefreshCcw } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";

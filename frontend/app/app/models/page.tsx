@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth } from "@/hooks/use-auth";
 import { Bot, CheckCircle2, CircleAlert, DatabaseZap, RefreshCcw, Wifi } from "lucide-react";
 import { staggerContainer, staggerItem } from "@/lib/animations";
 import { Badge } from "@/components/ui/badge";
