@@ -47,14 +47,16 @@ export function Navbar() {
 
         {/* Desktop CTA */}
         <div className="hidden items-center gap-3 md:flex">
+          {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
+            <Link
+              href="/sign-in"
+              className="rounded-md px-3.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Log in
+            </Link>
+          )}
           <Link
-            href="/sign-in"
-            className="rounded-md px-3.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/sign-up"
+            href="/app/chat"
             className="rounded-md bg-primary px-4 py-1.5 text-[13px] font-medium text-primary-foreground shadow-glow-sm transition-all hover:bg-primary/90 hover:shadow-glow"
           >
             Get Started
@@ -92,14 +94,16 @@ export function Navbar() {
                 </a>
               ))}
               <div className="mt-4 flex flex-col gap-2 border-t border-white/5 pt-4">
+                {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
+                  <Link
+                    href="/sign-in"
+                    className="rounded-md px-3 py-2 text-center text-sm text-muted-foreground transition hover:text-foreground"
+                  >
+                    Log in
+                  </Link>
+                )}
                 <Link
-                  href="/sign-in"
-                  className="rounded-md px-3 py-2 text-center text-sm text-muted-foreground transition hover:text-foreground"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/sign-up"
+                  href="/app/chat"
                   className="rounded-md bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground"
                 >
                   Get Started

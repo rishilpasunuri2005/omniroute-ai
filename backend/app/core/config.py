@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     environment: str = "development"
     api_prefix: str = "/api"
     frontend_origin: str = "http://localhost:3000"
-    allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
-    auth_required: bool = True
+    allowed_origins: str = "http://localhost:3000,http://127.0.0.1:3000,https://omniroute-ai.vercel.app"
+    auth_required: bool = False
     clerk_issuer: str | None = Field(default=None, validation_alias="CLERK_ISSUER")
     clerk_jwks_url: str | None = Field(default=None, validation_alias="CLERK_JWKS_URL")
     clerk_audience: str | None = Field(default=None, validation_alias="CLERK_AUDIENCE")
