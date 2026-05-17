@@ -72,6 +72,7 @@ export interface ModelInfo {
 
 export type StreamEvent =
   | { type: "status"; message: string }
+  | { type: "error"; message: string }
   | { type: "metadata"; model_used: string; classification: Classification; latency_ms: number; usage: Usage }
   | { type: "token"; content: string }
   | { type: "done"; result: ChatResponse };
