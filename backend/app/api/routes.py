@@ -112,8 +112,20 @@ async def create_workflow(
 
 
 async def _stream_chat(workflow: AgentWorkflow, payload: ChatRequest, session: AsyncSession, user: AuthContext):
+    import asyncio
     yield json.dumps({"type": "status", "message": "Routing request"}) + "\n"
-    result = await workflow.run(payload, session, user)
+    
+    task = asyncio.create_task(workflow.run(payload, session, user))
+    try:
+        while not task.done():
+            done, pending = await asyncio.wait([task], timeout=5.0)
+            if task in done:
+                break
+            yield json.dumps({"type": "status", "message": "Thinking..."}) + "\n"
+        result = task.result()
+    except asyncio.CancelledError:
+        task.cancel()
+        raise
     yield json.dumps(
         {
             "type": "metadata",
