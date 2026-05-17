@@ -70,20 +70,22 @@ export function AppSidebar() {
       >
         {/* Logo */}
         <div className="flex h-16 items-center gap-3 border-b border-white/5 px-4">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 glow-border">
-            <GitBranch className="h-4 w-4 text-primary" />
-          </div>
-          {!collapsed && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="min-w-0"
-            >
-              <p className="truncate text-sm font-semibold">OmniRoute AI</p>
-              <p className="truncate text-[11px] text-muted-foreground">Orchestration</p>
-            </motion.div>
-          )}
+          <Link href="/" className="flex items-center gap-3 min-w-0 overflow-hidden">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 glow-border transition hover:bg-primary/25">
+              <GitBranch className="h-4 w-4 text-primary" />
+            </div>
+            {!collapsed && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="min-w-0"
+              >
+                <p className="truncate text-sm font-semibold transition hover:text-primary">OmniRoute AI</p>
+                <p className="truncate text-[11px] text-muted-foreground">Orchestration</p>
+              </motion.div>
+            )}
+          </Link>
 
           {/* Collapse toggle — desktop */}
           <button
