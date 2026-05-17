@@ -5,7 +5,6 @@ import { FeaturesSection } from "@/sections/features";
 import { WorkflowSection } from "@/sections/workflow";
 import { AnalyticsSection } from "@/sections/analytics";
 import { SecuritySection } from "@/sections/security";
-import { PricingSection } from "@/sections/pricing";
 import { CtaSection } from "@/sections/cta";
 
 export default function LandingPage() {
@@ -18,7 +17,6 @@ export default function LandingPage() {
         <WorkflowSection />
         <AnalyticsSection />
         <SecuritySection />
-        <PricingSection />
         <CtaSection />
       </main>
       <Footer />

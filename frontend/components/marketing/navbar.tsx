@@ -10,7 +10,6 @@ const navLinks = [
   { href: "#workflows", label: "Workflows" },
   { href: "#models", label: "Models" },
   { href: "#security", label: "Security" },
-  { href: "#pricing", label: "Pricing" },
   { href: "https://github.com/rishilpasunuri2005/omniroute-ai", label: "Docs" },
 ];
 
