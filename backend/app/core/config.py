@@ -27,9 +27,9 @@ class Settings(BaseSettings):
 
     simple_model: str = "llama-3.1-8b-instant"
     balanced_model: str = "llama-3.3-70b-versatile"
-    coding_model: str = "deepseek/deepseek-coder"
+    coding_model: str = "deepseek/deepseek-chat"
     reasoning_model: str = "deepseek/deepseek-r1"
-    fallback_model: str = "openai/gpt-oss-20b"
+    fallback_model: str = "google/gemini-2.5-flash"
     route_confidence_threshold: float = 0.62
     max_retries: int = 2
     max_prompt_chars: int = 24000
