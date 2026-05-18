@@ -104,10 +104,7 @@ export default function ChatPage() {
 
           <div className="hidden text-sm font-semibold text-white/80 sm:block">Daily OmniRoute</div>
 
-          <Button className="h-9 rounded-full bg-white px-4 text-xs font-semibold text-slate-950 hover:bg-white/90">
-            <Sparkles className="mr-2 h-3.5 w-3.5" />
-            Upgrade
-          </Button>
+          <div className="h-9 w-9" aria-hidden="true" />
         </header>
 
         <main className="grid min-h-0 gap-6 py-8 xl:grid-cols-[minmax(0,1fr)_330px]">
