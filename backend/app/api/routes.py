@@ -151,14 +151,30 @@ async def _stream_chat(
         if exc is not None:
             logger.exception("stream_chat_task_error", exc_info=exc)
             detail = str(exc)
-            # Don't leak internal details to the client
-            if "provider" in detail.lower() or "api" in detail.lower():
-                detail = "AI provider returned an error. Please try again."
+            # Provide useful error messages without leaking internals
+            if hasattr(exc, "status_code") and exc.status_code == 503:
+                detail = "AI provider is not configured. Please check your API keys."
+            elif hasattr(exc, "status_code") and exc.status_code == 502:
+                lower_detail = detail.lower()
+                if "quota" in lower_detail or "insufficient" in lower_detail or "budget" in lower_detail:
+                    detail = "AI provider quota exceeded. Please check your provider account or billing."
+                else:
+                    detail = "AI provider request failed. Please check your API keys and try again."
+            elif hasattr(exc, "status_code") and exc.status_code == 429:
+                detail = "AI provider rate limit exceeded. Please try again later."
+            elif hasattr(exc, "status_code") and exc.status_code == 402:
+                detail = "AI provider quota exceeded. Please check your provider account or billing."
+            elif "not configured" in detail.lower():
+                detail = "AI provider is not configured. Please set your API keys in the .env file."
             elif "database" in detail.lower() or "postgres" in detail.lower() or "sqlalchemy" in detail.lower():
                 detail = "Database connection error. Please try again later."
-            elif "budget" in detail.lower() or "token" in detail.lower():
+            elif "daily token budget" in detail.lower() or "user token budget" in detail.lower():
                 detail = "Daily token budget exceeded."
+            elif "budget" in detail.lower() and "exceeded" in detail.lower():
+                detail = "AI provider quota exceeded. Please check your provider account or billing."
             else:
+                # Log the full detail for debugging but show a safe message
+                logger.error("unhandled_chat_error detail=%s", detail)
                 detail = f"Something went wrong: {detail}"
             yield json.dumps({"type": "error", "message": detail}) + "\n"
             return

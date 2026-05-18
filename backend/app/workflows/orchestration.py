@@ -20,6 +20,7 @@ from app.services.metrics import record_model_metric
 from app.services.token_counter import estimate_local_cost, estimate_tokens
 from app.services.users import get_or_create_user
 from app.utils.sanitize import sanitize_prompt
+from fastapi import HTTPException
 
 
 class WorkflowState(TypedDict, total=False):
@@ -146,7 +147,14 @@ class AgentWorkflow:
     async def _planner_node(self, state: WorkflowState) -> dict[str, Any]:
         request = state["request"]
         route = state["route"]
-        completion = await self.ai.generate(route.provider, route.selected_model, request.prompt, PLANNER_SYSTEM_PROMPT)
+        completion = await self._generate_with_fallback(
+            primary_provider=route.provider,
+            primary_model=route.selected_model,
+            fallback_provider=route.fallback_provider,
+            fallback_model=route.fallback_model,
+            prompt=request.prompt,
+            system_prompt=PLANNER_SYSTEM_PROMPT,
+        )
         return {
             "plan": completion.text,
             "usage": self._add_usage(state.get("usage"), completion),
@@ -160,11 +168,18 @@ class AgentWorkflow:
         route = state["route"]
         system_prompt = CODING_SYSTEM_PROMPT if route.classification.task_type in {"coding", "debugging"} else GENERAL_SYSTEM_PROMPT
         composed_prompt = self._compose_prompt(request, state.get("plan", ""))
-        completion = await self.ai.generate(route.provider, route.selected_model, composed_prompt, system_prompt)
+        completion = await self._generate_with_fallback(
+            primary_provider=route.provider,
+            primary_model=route.selected_model,
+            fallback_provider=route.fallback_provider,
+            fallback_model=route.fallback_model,
+            prompt=composed_prompt,
+            system_prompt=system_prompt,
+        )
         return {
             "response": completion.text,
-            "model_used": route.selected_model,
-            "provider": route.provider,
+            "model_used": completion.model,
+            "provider": completion.provider,
             "usage": self._add_usage(state.get("usage"), completion),
             "trace": state["trace"] + [
                 WorkflowStep(agent=self._agent_name(route.classification.task_type), status="completed", detail="Generated response"),
@@ -235,3 +250,24 @@ class AgentWorkflow:
             sections.append(f"Planner output:\n{plan}")
         sections.append(f"User prompt:\n{request.prompt}")
         return "\n\n".join(sections)
+
+    async def _generate_with_fallback(
+        self,
+        primary_provider: str,
+        primary_model: str,
+        fallback_provider: str,
+        fallback_model: str,
+        prompt: str,
+        system_prompt: str | None,
+    ) -> ProviderCompletion:
+        try:
+            return await self.ai.generate(primary_provider, primary_model, prompt, system_prompt)
+        except HTTPException as exc:
+            status_code = getattr(exc, "status_code", None)
+            if status_code not in {502, 503, 429, 402}:
+                raise
+            if fallback_provider == primary_provider and fallback_model == primary_model:
+                raise
+
+            # Try the configured fallback route before surfacing the provider failure.
+            return await self.ai.generate(fallback_provider, fallback_model, prompt, system_prompt)

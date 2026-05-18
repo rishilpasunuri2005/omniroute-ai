@@ -101,12 +101,31 @@ class AIProviderService:
                 )
             except (httpx.HTTPError, KeyError, IndexError, ValueError) as exc:
                 last_error = exc
-                logger.warning("ai_provider_request_failed provider=%s model=%s attempt=%s", provider, model, attempt + 1)
+                error_detail = str(exc)
+                # Try to extract response body for better diagnostics
+                if hasattr(exc, "response") and exc.response is not None:
+                    try:
+                        error_detail = exc.response.text[:500]
+                    except Exception:
+                        pass
+                logger.warning(
+                    "ai_provider_request_failed provider=%s model=%s attempt=%d error=%s",
+                    provider, model, attempt + 1, error_detail[:200],
+                )
                 if attempt < self.settings.max_retries:
                     await asyncio.sleep(0.35 * (attempt + 1))
 
+        error_msg = f"{provider}/{model} request failed after {self.settings.max_retries + 1} attempts"
+        if last_error and hasattr(last_error, "response") and last_error.response is not None:
+            try:
+                resp_body = last_error.response.json()
+                api_error = resp_body.get("error", {}).get("message", str(last_error))
+                error_msg = f"{provider}: {api_error}"
+            except Exception:
+                error_msg = f"{provider}: HTTP {last_error.response.status_code}"
+        logger.error("ai_provider_exhausted_retries provider=%s model=%s error=%s", provider, model, error_msg)
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="AI provider request failed",
+            detail=error_msg,
         ) from last_error
 
