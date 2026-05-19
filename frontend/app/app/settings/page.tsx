@@ -74,6 +74,7 @@ export default function SettingsPage() {
             {[
               { label: "Groq API Key", placeholder: "gsk_..." },
               { label: "OpenRouter API Key", placeholder: "sk-or-..." },
+              { label: "NVIDIA NIM API Key", placeholder: "nvapi-..." },
               { label: "OpenAI API Key", placeholder: "sk-..." },
               { label: "Anthropic API Key", placeholder: "sk-ant-..." },
             ].map((key) => (

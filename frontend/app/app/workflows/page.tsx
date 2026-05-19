@@ -195,7 +195,7 @@ export default function WorkflowsPage() {
             <CardDescription>Multi-provider support for maximum flexibility</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-2 sm:grid-cols-2">
-            {["Groq (Llama)", "OpenRouter", "OpenAI APIs", "Anthropic Claude"].map((provider) => (
+            {["Groq (Llama)", "OpenRouter", "NVIDIA NIM", "OpenAI APIs", "Anthropic Claude"].map((provider) => (
               <div key={provider} className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-xs font-medium">
                 {provider}
               </div>
