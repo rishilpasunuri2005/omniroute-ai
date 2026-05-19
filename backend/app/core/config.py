@@ -69,7 +69,7 @@ class Settings(BaseSettings):
         return {
             "simple": self.simple_model,
             "medium": self.balanced_model,
-            "complex": self.reasoning_model,
+            "reasoning": self.reasoning_model,
             "coding": self.coding_model,
             "fallback": self.fallback_model,
         }
@@ -79,7 +79,7 @@ class Settings(BaseSettings):
         return {
             "simple": self.simple_provider,
             "medium": self.balanced_provider,
-            "complex": self.reasoning_provider,
+            "reasoning": self.reasoning_provider,
             "coding": self.coding_provider,
             "fallback": self.fallback_provider,
         }

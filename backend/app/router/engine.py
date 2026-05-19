@@ -13,28 +13,24 @@ class RoutingEngine:
 
         if classification.task_type in {"coding", "debugging"}:
             selected_model = mappings["coding"]
+            provider_key = "coding"
             reason = "Coding and debugging prompts are routed to the coding-specialized model."
         elif classification.confidence < self.settings.route_confidence_threshold:
-            selected_model = mappings["complex"]
+            selected_model = mappings["reasoning"]
+            provider_key = "reasoning"
             reason = "Low classifier confidence triggered escalation to the strongest reasoning model."
         elif classification.complexity == "complex":
-            selected_model = mappings["complex"]
+            selected_model = mappings["reasoning"]
+            provider_key = "reasoning"
             reason = "Complex multi-step reasoning was routed to the reasoning model."
         elif classification.complexity == "medium":
             selected_model = mappings["medium"]
+            provider_key = "medium"
             reason = "Medium complexity work was routed to the balanced model."
         else:
             selected_model = mappings["simple"]
-            reason = "Short or simple work was routed to the low-latency model."
-
-        if selected_model == mappings["coding"]:
-            provider_key = "coding"
-        elif selected_model == mappings["complex"]:
-            provider_key = "complex"
-        elif selected_model == mappings["medium"]:
-            provider_key = "medium"
-        else:
             provider_key = "simple"
+            reason = "Short or simple work was routed to the low-latency model."
 
         return RouteResponse(
             classification=classification,

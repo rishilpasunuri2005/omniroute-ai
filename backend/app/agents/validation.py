@@ -10,7 +10,8 @@ class ValidationAgent:
 
         if not stripped:
             issues.append("empty_response")
-        if len(stripped) < 24:
+        # Only flag as incomplete if truly tiny AND not a short factual answer
+        if len(stripped) < 8:
             issues.append("possibly_incomplete_output")
         if expected_json:
             try:
