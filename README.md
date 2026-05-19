@@ -76,8 +76,20 @@ Backend secrets:
 - `CLERK_AUDIENCE`
 - `GROQ_API_KEY`
 - `OPENROUTER_API_KEY`
+- `NVIDIA_NIM_API_KEY`
+- `NVIDIA_NIM_BASE_URL` (defaults to `https://integrate.api.nvidia.com/v1`)
 - `SENTRY_DSN`
 - `LANGSMITH_API_KEY`
+
+Provider routing can be configured per route with:
+
+- `SIMPLE_PROVIDER`
+- `BALANCED_PROVIDER`
+- `CODING_PROVIDER`
+- `REASONING_PROVIDER`
+- `FALLBACK_PROVIDER`
+
+Supported provider values are `groq`, `openrouter`, and `nvidia`. To use NVIDIA NIM for a route, set the matching provider variable to `nvidia` and set that route's model variable to a model available to your NVIDIA NIM account.
 
 Frontend public config:
 

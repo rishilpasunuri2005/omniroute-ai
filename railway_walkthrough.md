@@ -26,6 +26,10 @@ Follow these steps to deploy your backend to Railway.
      - `FRONTEND_ORIGIN`: `https://your-frontend.vercel.app`
      - `GROQ_API_KEY`: `your_key_here`
      - `OPENROUTER_API_KEY`: `your_key_here`
+     - `NVIDIA_NIM_API_KEY`: `your_key_here` if you want to use NVIDIA NIM
+     - `NVIDIA_NIM_BASE_URL`: `https://integrate.api.nvidia.com/v1`
+     - `CODING_PROVIDER`: `nvidia` to route coding prompts through NVIDIA NIM
+     - `CODING_MODEL`: a NVIDIA NIM chat model available to your account
    - Note: `DATABASE_URL` is already linked if you added the Postgres service.
 
 ## 4. Verify Health Check

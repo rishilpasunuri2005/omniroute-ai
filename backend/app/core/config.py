@@ -23,13 +23,20 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = Field(default=None, validation_alias="OPENROUTER_API_KEY")
     openrouter_site_url: str = Field(default="http://localhost:3000", validation_alias="OPENROUTER_SITE_URL")
     openrouter_app_name: str = Field(default="OmniRoute AI", validation_alias="OPENROUTER_APP_NAME")
+    nvidia_nim_api_key: str | None = Field(default=None, validation_alias="NVIDIA_NIM_API_KEY")
+    nvidia_nim_base_url: str = Field(default="https://integrate.api.nvidia.com/v1", validation_alias="NVIDIA_NIM_BASE_URL")
     ai_timeout_seconds: float = 120.0
 
     simple_model: str = "llama-3.1-8b-instant"
     balanced_model: str = "llama-3.3-70b-versatile"
-    coding_model: str = "deepseek/deepseek-chat"
+    coding_model: str = "deepseek/deepseek-coder"
     reasoning_model: str = "deepseek/deepseek-r1"
     fallback_model: str = "google/gemini-2.5-flash"
+    simple_provider: str = Field(default="groq", validation_alias="SIMPLE_PROVIDER")
+    balanced_provider: str = Field(default="groq", validation_alias="BALANCED_PROVIDER")
+    coding_provider: str = Field(default="openrouter", validation_alias="CODING_PROVIDER")
+    reasoning_provider: str = Field(default="openrouter", validation_alias="REASONING_PROVIDER")
+    fallback_provider: str = Field(default="openrouter", validation_alias="FALLBACK_PROVIDER")
     route_confidence_threshold: float = 0.62
     max_retries: int = 2
     max_prompt_chars: int = 24000
@@ -70,12 +77,19 @@ class Settings(BaseSettings):
     @property
     def provider_by_route(self) -> dict[str, str]:
         return {
-            "simple": "groq",
-            "medium": "groq",
-            "complex": "openrouter",
-            "coding": "openrouter",
-            "fallback": "openrouter",
+            "simple": self.simple_provider,
+            "medium": self.balanced_provider,
+            "complex": self.reasoning_provider,
+            "coding": self.coding_provider,
+            "fallback": self.fallback_provider,
         }
+
+    @property
+    def nvidia_chat_completions_url(self) -> str:
+        base_url = self.nvidia_nim_base_url.rstrip("/")
+        if base_url.endswith("/chat/completions"):
+            return base_url
+        return f"{base_url}/chat/completions"
 
 
 @lru_cache

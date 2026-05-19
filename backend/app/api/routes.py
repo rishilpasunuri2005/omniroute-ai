@@ -77,14 +77,25 @@ async def models(
     settings: Settings = Depends(get_settings),
 ) -> list[ModelInfo]:
     configured = [
-        ModelInfo(name=settings.simple_model, role="simple", provider="groq", available=bool(settings.groq_api_key), context_window=8192),
-        ModelInfo(name=settings.balanced_model, role="balanced", provider="groq", available=bool(settings.groq_api_key), context_window=8192),
-        ModelInfo(name=settings.coding_model, role="coding", provider="openrouter", available=bool(settings.openrouter_api_key), context_window=16384),
-        ModelInfo(name=settings.reasoning_model, role="reasoning", provider="openrouter", available=bool(settings.openrouter_api_key), context_window=32768),
-        ModelInfo(name=settings.fallback_model, role="fallback", provider="openrouter", available=bool(settings.openrouter_api_key), context_window=8192),
+        ModelInfo(name=settings.simple_model, role="simple", provider=settings.simple_provider, available=_provider_available(settings, settings.simple_provider), context_window=8192),
+        ModelInfo(name=settings.balanced_model, role="balanced", provider=settings.balanced_provider, available=_provider_available(settings, settings.balanced_provider), context_window=8192),
+        ModelInfo(name=settings.coding_model, role="coding", provider=settings.coding_provider, available=_provider_available(settings, settings.coding_provider), context_window=16384),
+        ModelInfo(name=settings.reasoning_model, role="reasoning", provider=settings.reasoning_provider, available=_provider_available(settings, settings.reasoning_provider), context_window=32768),
+        ModelInfo(name=settings.fallback_model, role="fallback", provider=settings.fallback_provider, available=_provider_available(settings, settings.fallback_provider), context_window=8192),
     ]
-    seen: set[str] = set()
-    return [model for model in configured if not (model.name in seen or seen.add(model.name))]
+    seen: set[tuple[str, str]] = set()
+    return [model for model in configured if not ((model.provider, model.name) in seen or seen.add((model.provider, model.name)))]
+
+
+def _provider_available(settings: Settings, provider: str) -> bool:
+    normalized = provider.lower()
+    if normalized == "groq":
+        return bool(settings.groq_api_key)
+    if normalized == "openrouter":
+        return bool(settings.openrouter_api_key)
+    if normalized in {"nvidia", "nvidia_nim", "nim"}:
+        return bool(settings.nvidia_nim_api_key)
+    return False
 
 
 @limiter.limit("10/minute")

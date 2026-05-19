@@ -50,6 +50,16 @@ class AIProviderService:
                     "X-Title": self.settings.openrouter_app_name,
                 },
             )
+        if provider in {"nvidia", "nvidia_nim", "nim"}:
+            return await self._chat_completion(
+                provider="nvidia",
+                url=self.settings.nvidia_chat_completions_url,
+                api_key=self.settings.nvidia_nim_api_key,
+                model=model,
+                prompt=safe_prompt,
+                system=system,
+                extra_headers={},
+            )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Unsupported AI provider")
 
     async def _chat_completion(
@@ -128,4 +138,3 @@ class AIProviderService:
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=error_msg,
         ) from last_error
-

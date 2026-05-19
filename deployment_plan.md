@@ -25,6 +25,9 @@ The following variables must be set in Railway:
 - `DATABASE_URL`: Automatically provided by Railway (the app handles the prefix conversion).
 - `GROQ_API_KEY`: Your Groq API key.
 - `OPENROUTER_API_KEY`: Your OpenRouter API key.
+- `NVIDIA_NIM_API_KEY`: Your NVIDIA NIM API key, if routing any task to NVIDIA.
+- `NVIDIA_NIM_BASE_URL`: Optional, defaults to `https://integrate.api.nvidia.com/v1`.
+- `CODING_PROVIDER`, `REASONING_PROVIDER`, `FALLBACK_PROVIDER`: Optional route provider overrides. Use `nvidia` to route that task class through NVIDIA NIM.
 - `AUTH_REQUIRED`: Set to `true`.
 - `ENVIRONMENT`: Set to `production`.
 - `ALLOWED_ORIGINS`: Add your Railway backend URL and Frontend URL.
