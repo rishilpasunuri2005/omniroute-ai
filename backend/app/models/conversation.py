@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, Integer, String, Text, JSON
+from sqlalchemy import DateTime, Float, Integer, String, Text, JSON, Uuid
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.base import Base
@@ -14,7 +14,7 @@ def _uuid_str() -> str:
 class ConversationTurn(Base):
     __tablename__ = "conversation_turns"
 
-    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=_uuid_str)
+    id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid_str)
     conversation_id: Mapped[str] = mapped_column(String(80), index=True)
     prompt: Mapped[str] = mapped_column(Text)
     response: Mapped[str] = mapped_column(Text)
