@@ -18,3 +18,5 @@ build/
 
 .vercel
 .env*.local
+
+graphify-out/

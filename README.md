@@ -1,109 +1,301 @@
-# OmniRoute AI
+# 🌐 OmniRoute AI
 
-Intelligent Multi-Model Agent Orchestration Platform
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-15.0-black?style=for-the-badge&logo=next.js" alt="Next.js Badge"/>
+  <img src="https://img.shields.io/badge/FastAPI-0.100+-009688?style=for-the-badge&logo=fastapi" alt="FastAPI Badge"/>
+  <img src="https://img.shields.io/badge/LangGraph-Workflow-orange?style=for-the-badge&logo=chainlink" alt="LangGraph Badge"/>
+  <img src="https://img.shields.io/badge/Clerk-Authentication-6C47FF?style=for-the-badge&logo=clerk" alt="Clerk Badge"/>
+  <img src="https://img.shields.io/badge/PostgreSQL-15+-4169E1?style=for-the-badge&logo=postgresql" alt="PostgreSQL Badge"/>
+</p>
 
-OmniRoute AI is a security-first AI SaaS platform for routing prompts across Groq and OpenRouter models, coordinating LangGraph agents, validating AI output, tracking token usage, and analyzing model performance.
+### *Intelligent, Security-First Multi-Model AI Agent Orchestration Platform*
 
-## Architecture
+OmniRoute AI is a production-ready, security-first AI SaaS platform designed to dynamically route user prompts across high-performance LLM engines (Groq, OpenRouter, and NVIDIA NIM), coordinate multi-agent LangGraph workflows, perform rigid output validation, enforce daily token budgets, track granular latency/costs, and serve rich performance analytics.
 
-- `frontend/`: Next.js 15, React, TypeScript, Tailwind CSS, shadcn-style components, Clerk authentication.
-- `backend/`: FastAPI, LangGraph workflow orchestration, SQLAlchemy async ORM, SlowAPI rate limiting, Clerk JWT verification.
-- `database/`: PostgreSQL schema for users, chats, workflows, routing logs, analytics, token usage, API keys, and model metrics.
-- `docker-compose.yml`: PostgreSQL, backend, and frontend services.
-- `railway.json`: Railway backend deployment configuration.
+---
 
-Request flow:
+## 🚀 Key Features
 
-1. Clerk authenticates the user in Next.js.
-2. Frontend sends only a Clerk bearer token to FastAPI.
-3. FastAPI verifies the JWT using Clerk JWKS.
-4. `/chat` rate limits the request at `10/minute` per token/IP.
-5. Router classifies `{ task_type, complexity, confidence }`.
-6. LangGraph runs Router -> Planner/Specialized Agent -> Validation Agent.
-7. Groq/OpenRouter calls happen only on the backend.
-8. PostgreSQL records routing logs, token usage, latency, and model metrics.
+* **🧠 Dynamic Routing Classifier**: Classifies user queries based on task type (`summarization`, `coding`, `reasoning`, `extraction`, `planning`, `debugging`), complexity (`simple`, `medium`, `complex`), and classifier confidence, matching prompts to the optimal cost-efficient model.
+* **⛓️ LangGraph Orchestration**: Executes workflows with dedicated nodes for query planning (`Planner Agent`), specialized execution agents, and a dedicated `Validation Agent` that verifies output formats and safely repairs malformed completions.
+* **🛡️ Security-First Architecture**: 
+  - Strict server-side isolation for provider API secrets.
+  - Verification of JWT tokens using Clerk's JSON Web Key Sets (JWKS).
+  - Pydantic validation on prompt payload size, enums, history depth, and characters.
+  - Active CSP, HSTS, X-Frame-Options, CORS whitelist rules, and request size limiting.
+  - Per-user daily token budgets to prevent excessive usage.
+* **⚡ Production-Ready APIs**: High-throughput JSON endpoints with native support for real-time Streaming responses (`stream: true`) using NDJSON delivery.
+* **📊 Analytics & Monitoring**: Complete telemetry capturing latency spikes, token consumption, provider utilization, task distribution, and estimated cost savings.
+* **🐳 Seamless Containerization**: Unified multi-container Docker deployment for database, API backend, and Next.js frontend interfaces.
 
-## Security Architecture
+---
 
-- Secrets stay server-side. Frontend uses only `NEXT_PUBLIC_*` values.
-- Clerk handles authentication; no custom password auth is implemented.
-- Backend verifies JWT issuer, signature, expiration, and optional audience.
-- All public APIs have SlowAPI rate limits:
-  - AI routes: `10/minute`
-  - General APIs: `60/minute`
-  - Auth endpoints are delegated to Clerk; no backend password endpoints exist.
-- Pydantic validates API input size, enums, required fields, and history length.
-- SQLAlchemy ORM is used for runtime database operations.
-- CORS is allowlist-based via `ALLOWED_ORIGINS`.
-- Backend and frontend emit CSP, HSTS, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy.
-- AI prompts and outputs are sanitized before provider calls and rendering.
-- Per-user daily token budget is enforced before model execution.
-- Errors return generic messages; details are logged server-side.
+## 🏗️ System Architecture & Request Cycle
 
-## APIs
+OmniRoute AI coordinates the client request cycle through a secure, high-speed multi-stage pipeline:
 
-- `POST /chat`: authenticated, rate-limited AI workflow. Supports `stream: true` NDJSON.
-- `POST /route`: authenticated route preview.
-- `GET /analytics`: authenticated usage and routing analytics.
-- `GET /models`: authenticated configured model/provider status.
-- `POST /workflow/create`: authenticated workflow definition creation.
-- `GET /health`: public health check.
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Client (Next.js)
+    participant Clerk as Clerk Auth
+    participant API as FastAPI Backend
+    participant DB as PostgreSQL DB
+    participant LLM as Groq / OpenRouter / NIM
 
-## Routing Defaults
+    User->>Clerk: Authenticate user
+    Clerk-->>User: Return Bearer Token (JWT)
+    User->>API: Send Request (Prompt, History) + Bearer Token
+    Note over API: Verify Clerk JWT using JWKS key set
+    API->>API: Enforce Rate Limiting (SlowAPI)
+    API->>API: Enforce User Daily Token Budget
+    
+    rect rgb(240, 248, 255)
+        Note over API: Start LangGraph Agent Workflow
+        API->>API: Route prompt: determine complexity & task type
+        alt Medium or Complex
+            API->>LLM: Planner Agent: Create execution plan
+            LLM-->>API: Return Plan
+        end
+        API->>LLM: Execution Agent: Generate response
+        LLM-->>API: Return response
+        API->>API: Validation Agent: Parse & validate content
+        alt Validation Fails
+            API->>LLM: Fallback Model: Repair response
+            LLM-->>API: Return repaired response
+        end
+    end
 
-- Simple: Groq `llama-3.1-8b-instant`
-- Medium: Groq `llama-3.3-70b-versatile`
-- Coding/debugging: OpenRouter `deepseek/deepseek-coder`
-- Complex reasoning: OpenRouter `deepseek/deepseek-r1`
-- Validation fallback: OpenRouter `openai/gpt-oss-20b`
+    API->>DB: Log routing history, metrics, and token usage
+    API-->>User: Stream NDJSON tokens / Send ChatResponse
+```
 
-## Environment
+---
 
-Copy examples before running:
+## ⛓️ LangGraph Agent Flow Detail
 
+The orchestrator leverages LangGraph to coordinate the lifecycle of a prompt. The graph compiles four key nodes:
+
+```mermaid
+graph TD
+    Start([User Request]) --> Router[Router Node]
+    Router -->|Simple Complexity| Exec[Execute Node]
+    Router -->|Medium/Complex| Plan[Planner Node]
+    Plan --> Exec
+    Exec --> Validate[Validate Node]
+    Validate -->|Passed| End([Success Output])
+    Validate -->|Failed| Repair[Fallback Repair Node]
+    Repair --> End
+```
+
+1. **`router`**: Evaluates prompt parameters:
+   - `simple` $\rightarrow$ Routes directly to Groq `llama-3.1-8b-instant`.
+   - `medium` $\rightarrow$ Routes to Groq `llama-3.3-70b-versatile` through the `planner`.
+   - `complex` $\rightarrow$ Escalates to OpenRouter `deepseek-r1` through the `planner`.
+   - `coding/debugging` $\rightarrow$ Routes to OpenRouter `deepseek-coder`.
+2. **`planner`**: Active for `medium` and `complex` classification levels, drafting structured blueprints for execution.
+3. **`execute`**: Executes the user request, utilizing either coding-specialized system prompts or general system prompts.
+4. **`validate`**: Assesses quality, safety, and formats. If checks fail, it engages the configured fallback model (e.g., OpenRouter `gpt-oss-20b` or custom OpenAI endpoint) for self-healing/repair before completion.
+
+---
+
+## 📁 Repository Structure
+
+```
+├── frontend/               # Next.js 15, TypeScript, Tailwind CSS, Clerk Auth
+├── backend/                # FastAPI, LangGraph, SQLAlchemy (Async ORM), Pydantic
+├── database/               # PostgreSQL relational schema definition
+├── docker-compose.yml      # Local multi-service orchestration (DB + API + Web)
+└── railway.json            # Auto-deployment backend script for Railway
+```
+
+---
+
+## 🔌 API Reference Catalog
+
+### 1. `POST /chat`
+Executes the main AI orchestrator workflow. Supports standard responses or streaming token delivery.
+
+**Headers:**
+```http
+Authorization: Bearer <clerk_jwt_token>
+Content-Type: application/json
+```
+
+**Request Payload:**
+```json
+{
+  "prompt": "Optimize this SQL query: SELECT * FROM users WHERE active = true;",
+  "conversation_id": "a6acfe06-75fb-49b1-9f70-adced37b8b3b",
+  "history": [
+    { "role": "user", "content": "Hello!" },
+    { "role": "assistant", "content": "Hello! How can I assist you today?" }
+  ],
+  "stream": false
+}
+```
+
+**Response Payload:**
+```json
+{
+  "conversation_id": "a6acfe06-75fb-49b1-9f70-adced37b8b3b",
+  "response": "Here is the optimized SQL query using proper indexing...",
+  "model_used": "deepseek/deepseek-coder",
+  "latency_ms": 1150,
+  "usage": {
+    "prompt_tokens": 124,
+    "completion_tokens": 256,
+    "total_tokens": 380
+  },
+  "classification": {
+    "task_type": "coding",
+    "complexity": "complex",
+    "confidence": 0.98
+  },
+  "validation": {
+    "passed": true,
+    "risk_level": "low",
+    "issues": []
+  },
+  "workflow_trace": [
+    { "agent": "Router Agent", "status": "completed", "detail": "Selected coding model" },
+    { "agent": "Coding Agent", "status": "completed", "detail": "Generated response" },
+    { "agent": "Validation Agent", "status": "completed", "detail": "Passed validation checks" }
+  ],
+  "estimated_cost": 0.00038
+}
+```
+
+---
+
+### 2. `POST /route`
+Simulate prompt routing without generating answers. Useful for system monitoring.
+
+**Request Payload:**
+```json
+{
+  "prompt": "Explain Quantum Computing in 3 sentences."
+}
+```
+
+**Response Payload:**
+```json
+{
+  "classification": {
+    "task_type": "reasoning",
+    "complexity": "medium",
+    "confidence": 0.91
+  },
+  "selected_model": "llama-3.3-70b-versatile",
+  "provider": "groq",
+  "fallback_model": "openai/gpt-oss-20b",
+  "fallback_provider": "openrouter",
+  "reason": "Medium complexity work was routed to the balanced model."
+}
+```
+
+---
+
+### 3. `GET /analytics`
+Retrieves usage history, performance metrics, and cost savings.
+
+**Response Payload:**
+```json
+{
+  "total_requests": 2540,
+  "total_tokens": 1845920,
+  "average_latency_ms": 780.5,
+  "estimated_cost": 1.45,
+  "estimated_cost_savings": 14.80,
+  "routing_distribution": {
+    "groq": 1820,
+    "openrouter": 720
+  },
+  "model_utilization": {
+    "llama-3.1-8b-instant": 1200,
+    "llama-3.3-70b-versatile": 620,
+    "deepseek/deepseek-coder": 500,
+    "deepseek/deepseek-r1": 220
+  },
+  "task_type_distribution": {
+    "summarization": 300,
+    "coding": 500,
+    "reasoning": 740,
+    "extraction": 200,
+    "planning": 150,
+    "debugging": 650
+  },
+  "recent_activity": []
+}
+```
+
+---
+
+### 4. `GET /models`
+Lists all supported models, availability statuses, and context windows.
+
+**Response Payload:**
+```json
+[
+  {
+    "name": "llama-3.1-8b-instant",
+    "role": "simple",
+    "provider": "groq",
+    "available": true,
+    "context_window": 8192
+  },
+  {
+    "name": "deepseek/deepseek-coder",
+    "role": "coding",
+    "provider": "openrouter",
+    "available": true,
+    "context_window": 16384
+  }
+]
+```
+
+---
+
+## ⚙️ Environment Configuration Playbook
+
+Duplicate configuration templates before setting up:
 ```powershell
 copy .env.example .env
 copy backend\.env.example backend\.env
 copy frontend\.env.example frontend\.env.local
 ```
 
-Backend secrets:
+### Backend Provider Settings
+| Variable Name | Required | Provider Scope | Description |
+|---|---|---|---|
+| `GROQ_API_KEY` | Optional | Groq | Access key for Groq API models. |
+| `OPENROUTER_API_KEY` | Optional | OpenRouter | Access key for OpenRouter models. |
+| `NVIDIA_NIM_API_KEY` | Optional | NVIDIA NIM | Access key for self-hosted/cloud NVIDIA NIM models. |
+| `NVIDIA_NIM_BASE_URL` | Optional | NVIDIA NIM | Overrides default NIM endpoint gateway. |
 
-- `DATABASE_URL`
-- `AUTH_REQUIRED`
-- `CLERK_ISSUER`
-- `CLERK_JWKS_URL`
-- `CLERK_AUDIENCE`
-- `GROQ_API_KEY`
-- `OPENROUTER_API_KEY`
-- `NVIDIA_NIM_API_KEY`
-- `NVIDIA_NIM_BASE_URL` (defaults to `https://integrate.api.nvidia.com/v1`)
-- `SENTRY_DSN`
-- `LANGSMITH_API_KEY`
+### Dynamic Model Route Settings
+| Variable | Default Value | Role Target |
+|---|---|---|
+| `SIMPLE_PROVIDER` | `groq` | Provider for light tasks |
+| `SIMPLE_MODEL` | `llama-3.1-8b-instant` | Model for light tasks |
+| `BALANCED_PROVIDER` | `groq` | Provider for medium tasks |
+| `BALANCED_MODEL` | `llama-3.3-70b-versatile` | Model for medium tasks |
+| `CODING_PROVIDER` | `openrouter` | Provider for code tasks |
+| `CODING_MODEL` | `deepseek/deepseek-coder` | Model for code tasks |
+| `REASONING_PROVIDER` | `openrouter` | Provider for deep thinking |
+| `REASONING_MODEL` | `deepseek/deepseek-r1` | Model for deep thinking |
+| `FALLBACK_PROVIDER` | `openrouter` | Provider for response healing |
+| `FALLBACK_MODEL` | `openai/gpt-oss-20b` | Model for response healing |
 
-Provider routing can be configured per route with:
+---
 
-- `SIMPLE_PROVIDER`
-- `BALANCED_PROVIDER`
-- `CODING_PROVIDER`
-- `REASONING_PROVIDER`
-- `FALLBACK_PROVIDER`
+## 💻 Local Development Playbook
 
-Supported provider values are `groq`, `openrouter`, and `nvidia`. To use NVIDIA NIM for a route, set the matching provider variable to `nvidia` and set that route's model variable to a model available to your NVIDIA NIM account.
+### 1. Prerequisites Setup
+Ensure Docker, Python 3.10+, and Node.js 18+ are configured locally.
 
-Frontend public config:
-
-- `NEXT_PUBLIC_API_URL`
-- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
-
-Frontend server config:
-
-- `CLERK_SECRET_KEY`
-
-## Local Development
-
-Backend:
-
+### 2. Startup Backend
+Activate python environment, install dependencies, and launch FastAPI server:
 ```powershell
 cd backend
 python -m venv .venv
@@ -111,56 +303,43 @@ python -m venv .venv
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
+Open API Swagger docs at `http://localhost:8000/docs`.
 
-Frontend:
-
+### 3. Startup Frontend
+Install Node packages and run the Next.js developer hot-reload pipeline:
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
+Open Web Dashboard at `http://localhost:3000`.
 
-Docker:
-
+### 4. Running Multi-Containers via Docker
+Run single-command local virtualization orchestrator:
 ```powershell
 docker compose up --build
 ```
 
-Open:
+---
 
-- Frontend: `http://localhost:3000`
-- Backend docs: `http://localhost:8000/docs`
+## 🧪 Verification & Production Guidelines
 
-## Deployment
-
-Backend on Railway:
-
-1. Create a Railway service from this repository.
-2. Use `railway.json`.
-3. Set backend environment variables from `backend/.env.example`.
-4. Provision PostgreSQL and set `DATABASE_URL`.
-
-Frontend on Vercel:
-
-1. Set project root to `frontend`.
-2. Set `NEXT_PUBLIC_API_URL` to the Railway backend URL.
-3. Set Clerk frontend/server keys.
-4. Configure Clerk allowed origins and redirect URLs.
-
-## Verification
-
+### Execute Tests
+Execute test suites to verify backend security and routing engines:
 ```powershell
 cd backend
 .venv\Scripts\python.exe -m pytest
+```
 
-cd ..\frontend
+Ensure frontend builds flawlessly without warnings or audit security blocks:
+```powershell
+cd ../frontend
 npm run build
 npm audit --audit-level=high
 ```
 
-## Production Notes
-
-- Replace startup `Base.metadata.create_all` with Alembic migrations before high-scale production.
-- Use Redis-backed SlowAPI storage for multi-instance rate limiting.
-- Add tenant-scoped analytics filters if organization-level Clerk accounts are enabled.
-- Add provider key rotation workflows before exposing API key management in the UI.
+### Production Guidelines
+* **Database Migrations**: Avoid running inline `Base.metadata.create_all` in production lifespans. Utilize `Alembic` database migrations to update production tables safely.
+* **Distributed Rate Limiting**: Shift FastAPI rate-limiting SlowAPI storage to Redis engines to handle load across multi-instance node deployments.
+* **Enhanced Safety Policies**: Add tenant isolation policies to your database and restrict origin headers to trusted domains.
+* **Model Failovers**: Setup provider key rotations and ensure multiple backup fallback routes are configured inside `.env`.
