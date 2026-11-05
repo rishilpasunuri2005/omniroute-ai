@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { GitBranch, Menu, X } from "lucide-react";
 
 const navLinks = [
@@ -17,102 +16,95 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-x-0 top-0 z-50 glass-nav"
-    >
-      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 transition-opacity hover:opacity-80">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/15 glow-border">
-            <GitBranch className="h-4 w-4 text-primary" />
+    <header className="fixed inset-x-0 top-0 z-[var(--z-sticky-nav)] surface-nav">
+      <nav className="mx-auto flex h-14 max-w-[var(--container)] items-center justify-between px-4 sm:px-8 lg:px-12">
+        {/* Brand Wordmark */}
+        <Link
+          href="/"
+          className="flex items-center gap-2.5 text-[var(--color-ink)] hover:text-[var(--color-accent)] active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)] transition-colors"
+        >
+          <div className="flex h-7 w-7 items-center justify-center bg-[var(--color-paper-2)] border border-[var(--color-rule)]">
+            <GitBranch className="h-3.5 w-3.5 text-[var(--color-accent)]" />
           </div>
-          <span className="text-sm font-semibold tracking-tight">OmniRoute AI</span>
+          <span className="text-sm font-medium tracking-tight">OmniRoute AI</span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden items-center gap-1 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="rounded-md px-3 py-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] hover:underline active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
             >
               {link.label}
             </a>
           ))}
         </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden items-center gap-3 md:flex">
+        {/* Desktop Actions */}
+        <div className="hidden items-center gap-4 md:flex">
           {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
             <Link
               href="/sign-in"
-              className="rounded-md px-3.5 py-1.5 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
             >
-              Log in
+              Sign in
             </Link>
           )}
           <Link
             href="/app/chat"
-            className="rounded-md bg-primary px-4 py-1.5 text-[13px] font-medium text-primary-foreground shadow-glow-sm transition-all hover:bg-primary/90 hover:shadow-glow"
+            className="btn-primary active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
           >
-            Get Started
+            Launch console
           </Link>
         </div>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu trigger */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-muted-foreground transition hover:bg-white/5 md:hidden"
+          className="flex h-8 w-8 items-center justify-center border border-[var(--color-rule)] text-[var(--color-muted)] hover:bg-[var(--color-paper-2)] hover:text-[var(--color-ink)] active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)] md:hidden transition-colors disabled:opacity-50"
           aria-label="Toggle menu"
         >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
       </nav>
 
-      {/* Mobile Nav */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-white/5 md:hidden"
-          >
-            <div className="space-y-1 px-4 py-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-md px-3 py-2 text-sm text-muted-foreground transition hover:bg-white/5 hover:text-foreground"
-                >
-                  {link.label}
-                </a>
-              ))}
-              <div className="mt-4 flex flex-col gap-2 border-t border-white/5 pt-4">
-                {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
-                  <Link
-                    href="/sign-in"
-                    className="rounded-md px-3 py-2 text-center text-sm text-muted-foreground transition hover:text-foreground"
-                  >
-                    Log in
-                  </Link>
-                )}
+      {/* Mobile Nav Drawer */}
+      {open && (
+        <div className="border-t border-[var(--color-rule)] bg-[var(--color-paper)] px-4 py-4 md:hidden">
+          <div className="flex flex-col space-y-3">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setOpen(false)}
+                className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="pt-3 border-t border-[var(--color-rule)] flex flex-col gap-2">
+              {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
                 <Link
-                  href="/app/chat"
-                  className="rounded-md bg-primary px-3 py-2 text-center text-sm font-medium text-primary-foreground"
+                  href="/sign-in"
+                  onClick={() => setOpen(false)}
+                  className="text-xs text-[var(--color-muted)] py-1"
                 >
-                  Get Started
+                  Sign in
                 </Link>
-              </div>
+              )}
+              <Link
+                href="/app/chat"
+                onClick={() => setOpen(false)}
+                className="btn-primary text-center"
+              >
+                Launch console
+              </Link>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.header>
+          </div>
+        </div>
+      )}
+    </header>
   );
 }

@@ -1,52 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 export function CtaSection() {
   return (
-    <section className="relative py-24 lg:py-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="relative overflow-hidden rounded-2xl"
-        >
-          {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5" />
-          <div className="absolute inset-0 dot-pattern opacity-20" />
-          <div className="absolute inset-0 border border-primary/10 rounded-2xl" />
-
-          {/* Content */}
-          <div className="relative px-8 py-16 text-center sm:px-16 lg:py-24">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
-              Build Smarter <span className="gradient-text">AI Workflows</span>
+    <section className="py-20 lg:py-28 border-t border-[var(--color-rule)]">
+      <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
+        <div className="surface-plate p-8 sm:p-12 lg:p-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+          <div className="max-w-xl">
+            <span className="text-xs text-[var(--color-muted)] block mb-2">
+              Ready to deploy
+            </span>
+            <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+              Build with multi-model routing
             </h2>
-            <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-muted-foreground">
-              Join developers who route millions of AI tasks through intelligent pipelines.
-              Start building today — it&apos;s free.
+            <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+              Start dispatching tasks across specialized models today. Free local sandbox included.
             </p>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Link
-                href="/app/chat"
-                className="group inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-glow transition-all hover:bg-primary/90 hover:shadow-glow-lg"
-              >
-                Start Free
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <a
-                href="#"
-                className="group inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-foreground backdrop-blur transition-all hover:border-white/20 hover:bg-white/8"
-              >
-                <BookOpen className="h-4 w-4 text-primary" />
-                View Documentation
-              </a>
-            </div>
           </div>
-        </motion.div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/app/chat"
+              className="btn-primary active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
+            >
+              Launch console
+              <ArrowRight className="h-3.5 w-3.5 ml-1" />
+            </Link>
+            <a
+              href="https://github.com/rishilpasunuri2005/omniroute-ai"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
+            >
+              <BookOpen className="h-3.5 w-3.5 mr-1 text-[var(--color-muted)]" />
+              Documentation
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   );

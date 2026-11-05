@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   GitBranch,
   Brain,
@@ -9,96 +8,87 @@ import {
   Layers3,
   ShieldCheck,
 } from "lucide-react";
-import { staggerContainer, staggerItem } from "@/lib/animations";
 
 const features = [
   {
     icon: GitBranch,
-    title: "Intelligent Routing",
+    title: "Intelligent routing",
     description:
-      "Automatically classify task complexity and route to the optimal model — fast, accurate, and cost-efficient.",
+      "Classify task complexity and dispatch to the optimal model for fast, accurate, and cost-efficient execution.",
   },
   {
     icon: Brain,
-    title: "Multi-Agent Workflows",
+    title: "Multi-agent workflows",
     description:
-      "Chain specialized agents together for planning, coding, reasoning, and validation in a single pipeline.",
+      "Chain specialized agents together for planning, execution, and validation in a single graph pipeline.",
   },
   {
     icon: DollarSign,
-    title: "Cost Optimization",
+    title: "Cost optimization",
     description:
-      "Route simple tasks to lightweight models and reserve expensive models for complex reasoning — save up to 70%.",
+      "Route simple requests to lightweight models and reserve expensive reasoning for high-complexity problems.",
   },
   {
     icon: BarChart3,
-    title: "Real-Time Analytics",
+    title: "Real-time analytics",
     description:
-      "Monitor token usage, latency, routing decisions, and model utilization with live dashboards.",
+      "Monitor token usage, latency distribution, routing choices, and provider availability in live dashboards.",
   },
   {
     icon: Layers3,
-    title: "Open Model Support",
+    title: "Open model support",
     description:
-      "Connect any LLM provider — Groq, OpenRouter, OpenAI, Anthropic, or self-hosted models via Ollama.",
+      "Connect any upstream provider: Groq, OpenRouter, NVIDIA NIM, OpenAI, or local instances via Ollama.",
   },
   {
     icon: ShieldCheck,
-    title: "Enterprise Security",
+    title: "Hardened security",
     description:
-      "Built-in input sanitization, output validation, rate limiting, and JWT-based authentication.",
+      "Built-in prompt sanitization, response validation, per-user rate limits, and JWT-authenticated endpoints.",
   },
 ];
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="relative py-24 lg:py-32">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="features" className="py-20 lg:py-28 border-t border-[var(--color-rule)]">
+      <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="mx-auto max-w-2xl text-center"
-        >
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary">Features</p>
-          <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything you need for
-            <span className="gradient-text"> intelligent orchestration</span>
+        <div className="max-w-2xl">
+          <span className="text-xs text-[var(--color-muted)] block mb-2">
+            Architecture capabilities
+          </span>
+          <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+            Everything needed for model orchestration
           </h2>
-          <p className="mt-4 text-base leading-7 text-muted-foreground">
-            A complete platform for routing, monitoring, and optimizing your AI workflows.
+          <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+            A unified runtime for classifying, dispatching, and monitoring multi-model agentic workloads.
           </p>
-        </motion.div>
+        </div>
 
-        {/* Feature Cards */}
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-        >
+        {/* Feature Grid */}
+        <div className="mt-12 grid gap-px bg-[var(--color-rule)] sm:grid-cols-2 lg:grid-cols-3 border border-[var(--color-rule)]">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
-              <motion.div
+              <div
                 key={feature.title}
-                variants={staggerItem}
-                className="feature-card glass-card group rounded-xl p-6"
+                className="bg-[var(--color-paper-2)] p-6 sm:p-8 flex flex-col justify-between feature-card"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-                  <Icon className="h-5 w-5" />
+                <div>
+                  <div className="flex h-9 w-9 items-center justify-center border border-[var(--color-rule)] bg-[var(--color-paper)] text-[var(--color-accent)]">
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <h3 className="mt-6 text-base font-medium text-[var(--color-ink)]">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed">
+                    {feature.description}
+                  </p>
                 </div>
-                <h3 className="mt-4 text-base font-semibold">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  {feature.description}
-                </p>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
