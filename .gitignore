@@ -18,5 +18,7 @@ build/
 
 .vercel
 .env*.local
+*.tsbuildinfo
+.graphify_python
 
 graphify-out/

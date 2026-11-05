@@ -1,6 +1,7 @@
 import logging
 from datetime import date
 
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,23 +11,19 @@ logger = logging.getLogger(__name__)
 
 
 async def enforce_token_budget(session: AsyncSession, user: User, estimated_prompt_tokens: int) -> None:
-    """Check token budget but only log warnings instead of blocking requests.
-
-    In production with real auth, this could raise HTTP 402 to enforce hard limits.
-    For dev/demo environments, we just log and let the request through.
-    """
-    try:
-        usage = await session.scalar(
-            select(TokenUsage).where(TokenUsage.user_id == user.id, TokenUsage.usage_date == date.today())
+    usage = await session.scalar(
+        select(TokenUsage).where(TokenUsage.user_id == user.id, TokenUsage.usage_date == date.today())
+    )
+    used = usage.total_tokens if usage else 0
+    if used + estimated_prompt_tokens > user.daily_token_budget:
+        logger.warning(
+            "token_budget_exceeded user_id=%s used=%d budget=%d requested=%d",
+            user.id, used, user.daily_token_budget, estimated_prompt_tokens,
         )
-        used = usage.total_tokens if usage else 0
-        if used + estimated_prompt_tokens > user.daily_token_budget:
-            logger.warning(
-                "token_budget_warning user_id=%s used=%d budget=%d",
-                user.id, used, user.daily_token_budget,
-            )
-    except Exception:
-        logger.exception("enforce_token_budget_error")
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="Daily token budget exceeded. Please try again tomorrow or upgrade your plan.",
+        )
 
 
 async def record_token_usage(

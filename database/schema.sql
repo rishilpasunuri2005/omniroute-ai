@@ -1,5 +1,6 @@
 CREATE TABLE IF NOT EXISTS conversation_turns (
   id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   conversation_id VARCHAR(80) NOT NULL,
   prompt TEXT NOT NULL,
   response TEXT NOT NULL,
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS conversation_turns (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE INDEX IF NOT EXISTS ix_conversation_turns_user_id ON conversation_turns(user_id);
 CREATE INDEX IF NOT EXISTS ix_conversation_turns_conversation_id ON conversation_turns(conversation_id);
 CREATE INDEX IF NOT EXISTS ix_conversation_turns_model_used ON conversation_turns(model_used);
 CREATE INDEX IF NOT EXISTS ix_conversation_turns_complexity ON conversation_turns(complexity);

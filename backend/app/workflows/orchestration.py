@@ -52,10 +52,7 @@ class AgentWorkflow:
         )
 
         user = await get_or_create_user(session, auth, self.settings)
-        try:
-            await enforce_token_budget(session, user, estimate_tokens(sanitized_request.prompt))
-        except Exception:
-            pass  # Budget check is advisory; never block requests
+        await enforce_token_budget(session, user, estimate_tokens(sanitized_request.prompt))
         state = await self.graph.ainvoke({"request": sanitized_request, "conversation_id": conversation_id})
 
         route = state["route"]
@@ -73,6 +70,7 @@ class AgentWorkflow:
         estimated_cost = estimate_local_cost(total_tokens)
 
         record = ConversationTurn(
+            user_id=user.id,
             conversation_id=conversation_id,
             prompt=sanitized_request.prompt,
             response=response,

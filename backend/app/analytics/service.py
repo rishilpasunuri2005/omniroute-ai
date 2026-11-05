@@ -6,23 +6,31 @@ from app.schemas.analytics import AnalyticsResponse
 from app.services.token_counter import estimate_cost_savings
 
 
-async def get_analytics(session: AsyncSession) -> AnalyticsResponse:
-    total_requests = await session.scalar(select(func.count()).select_from(ConversationTurn)) or 0
-    total_tokens = await session.scalar(select(func.coalesce(func.sum(ConversationTurn.total_tokens), 0))) or 0
-    avg_latency = await session.scalar(select(func.coalesce(func.avg(ConversationTurn.latency_ms), 0))) or 0
-    estimated_cost = await session.scalar(select(func.coalesce(func.sum(ConversationTurn.estimated_cost), 0))) or 0
+async def get_analytics(
+    session: AsyncSession,
+    user_id: str | None = None,
+    recent_user_id: str | None = None,
+) -> AnalyticsResponse:
+    filters = [ConversationTurn.user_id == user_id] if user_id else []
 
-    routing_distribution = await _count_by(session, ConversationTurn.complexity)
-    model_utilization = await _count_by(session, ConversationTurn.model_used)
-    task_type_distribution = await _count_by(session, ConversationTurn.task_type)
+    total_requests = await session.scalar(select(func.count()).select_from(ConversationTurn).where(*filters)) or 0
+    total_tokens = await session.scalar(select(func.coalesce(func.sum(ConversationTurn.total_tokens), 0)).where(*filters)) or 0
+    avg_latency = await session.scalar(select(func.coalesce(func.avg(ConversationTurn.latency_ms), 0)).where(*filters)) or 0
+    estimated_cost = await session.scalar(select(func.coalesce(func.sum(ConversationTurn.estimated_cost), 0)).where(*filters)) or 0
 
-    recent_rows = (
-        await session.execute(
-            select(ConversationTurn)
-            .order_by(ConversationTurn.created_at.desc())
-            .limit(8)
-        )
-    ).scalars()
+    routing_distribution = await _count_by(session, ConversationTurn.complexity, filters)
+    model_utilization = await _count_by(session, ConversationTurn.model_used, filters)
+    task_type_distribution = await _count_by(session, ConversationTurn.task_type, filters)
+
+    recent_query = select(ConversationTurn).order_by(ConversationTurn.created_at.desc()).limit(8)
+    activity_filter = recent_user_id or user_id
+    if activity_filter:
+        recent_query = recent_query.where(ConversationTurn.user_id == activity_filter)
+    else:
+        # When no user context is available, do not leak raw cross-tenant prompt data
+        recent_query = recent_query.where(ConversationTurn.id == None)  # noqa: E711
+
+    recent_rows = (await session.execute(recent_query)).scalars()
     recent_activity = [
         {
             "id": str(row.id),
@@ -49,7 +57,10 @@ async def get_analytics(session: AsyncSession) -> AnalyticsResponse:
     )
 
 
-async def _count_by(session: AsyncSession, column) -> dict[str, int]:
-    rows = await session.execute(select(column, func.count()).group_by(column))
+async def _count_by(session: AsyncSession, column, filters: list | None = None) -> dict[str, int]:
+    query = select(column, func.count())
+    if filters:
+        query = query.where(*filters)
+    rows = await session.execute(query.group_by(column))
     return {str(key): int(count) for key, count in rows.all()}
 

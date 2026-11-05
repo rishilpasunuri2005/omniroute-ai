@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     configure_logging()
+    if settings.environment.lower() == "production" and not settings.auth_required:
+        raise RuntimeError("CRITICAL SECURITY ERROR: AUTH_REQUIRED must not be disabled in production.")
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield

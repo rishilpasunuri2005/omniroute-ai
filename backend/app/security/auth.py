@@ -49,7 +49,10 @@ async def get_current_user(
     token = credentials.credentials
     try:
         signing_key = _jwks_client(settings.clerk_jwks_url).get_signing_key_from_jwt(token)
-        decode_options = {"verify_aud": bool(settings.clerk_audience)}
+        decode_options = {
+            "verify_aud": bool(settings.clerk_audience),
+            "require": ["exp", "sub"],
+        }
         payload = jwt.decode(
             token,
             signing_key.key,
@@ -62,7 +65,7 @@ async def get_current_user(
     except jwt.PyJWTError as exc:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid authentication token") from exc
 
-    if payload.get("exp") and int(payload["exp"]) < int(time.time()):
+    if int(payload["exp"]) < int(time.time()):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication token expired")
 
     role = (
@@ -84,7 +87,8 @@ async def get_current_user(
 def require_role(*allowed_roles: str):
     async def dependency(user: Annotated[AuthContext, Depends(get_current_user)]) -> AuthContext:
         normalized = {role.lower() for role in allowed_roles}
-        if user.role.lower() not in normalized and "admin" not in user.role.lower():
+        user_role = user.role.lower()
+        if user_role not in normalized and user_role != "admin":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
         return user
 

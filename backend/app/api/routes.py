@@ -65,8 +65,11 @@ async def analytics(
     request: Request,
     user: Annotated[AuthContext, Depends(get_current_user)],
     session: AsyncSession = Depends(get_session),
+    settings: Settings = Depends(get_settings),
 ) -> AnalyticsResponse:
-    return await get_analytics(session)
+    db_user = await get_or_create_user(session, user, settings)
+    aggregate_filter_user = db_user.id if user.role.lower() != "admin" else None
+    return await get_analytics(session, user_id=aggregate_filter_user, recent_user_id=db_user.id)
 
 
 @limiter.limit("60/minute")
