@@ -1,0 +1,69 @@
+services:
+  - type: web
+    name: omniroute-ai-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false          # set manually in Render dashboard from Supabase
+      - key: AUTH_REQUIRED
+        value: "true"
+      - key: FRONTEND_ORIGIN
+        sync: false          # e.g. https://omniroute-ai.vercel.app
+      - key: ALLOWED_ORIGINS
+        sync: false          # comma-separated list of allowed origins
+      - key: CLERK_ISSUER
+        sync: false
+      - key: CLERK_JWKS_URL
+        sync: false
+      - key: CLERK_AUDIENCE
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: NVIDIA_NIM_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: LANGSMITH_API_KEY
+        sync: false
+      - key: LANGSMITH_PROJECT
+        value: omniroute-ai
+      - key: OPENROUTER_SITE_URL
+        sync: false
+      - key: OPENROUTER_APP_NAME
+        value: OmniRoute AI
+      - key: SIMPLE_MODEL
+        value: llama-3.1-8b-instant
+      - key: BALANCED_MODEL
+        value: llama-3.3-70b-versatile
+      - key: CODING_MODEL
+        value: deepseek/deepseek-coder
+      - key: REASONING_MODEL
+        value: deepseek/deepseek-r1
+      - key: FALLBACK_MODEL
+        value: google/gemini-2.5-flash
+      - key: SIMPLE_PROVIDER
+        value: groq
+      - key: BALANCED_PROVIDER
+        value: groq
+      - key: CODING_PROVIDER
+        value: openrouter
+      - key: REASONING_PROVIDER
+        value: openrouter
+      - key: FALLBACK_PROVIDER
+        value: openrouter
+      - key: ROUTE_CONFIDENCE_THRESHOLD
+        value: "0.62"
+      - key: MAX_RETRIES
+        value: "2"
+      - key: MAX_REQUEST_BYTES
+        value: "512000"
+      - key: PER_USER_DAILY_TOKEN_BUDGET
+        value: "100000"
+    healthCheckPath: /health
