@@ -9,19 +9,13 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: DATABASE_URL
-        sync: false          # set manually in Render dashboard from Supabase
+        sync: false          # set manually in Render dashboard from Supabase (session pooler string)
       - key: AUTH_REQUIRED
-        value: "true"
+        value: "false"       # no production Clerk instance configured yet; flip to "true" and add CLERK_* vars when ready
       - key: FRONTEND_ORIGIN
-        sync: false          # e.g. https://omniroute-ai.vercel.app
+        value: https://omniroute-ai.vercel.app
       - key: ALLOWED_ORIGINS
-        sync: false          # comma-separated list of allowed origins
-      - key: CLERK_ISSUER
-        sync: false
-      - key: CLERK_JWKS_URL
-        sync: false
-      - key: CLERK_AUDIENCE
-        sync: false
+        value: http://localhost:3000,http://127.0.0.1:3000,https://omniroute-ai.vercel.app
       - key: GROQ_API_KEY
         sync: false
       - key: OPENROUTER_API_KEY
@@ -29,13 +23,13 @@ services:
       - key: NVIDIA_NIM_API_KEY
         sync: false
       - key: SENTRY_DSN
-        sync: false
+        value: ""
       - key: LANGSMITH_API_KEY
-        sync: false
+        value: ""
       - key: LANGSMITH_PROJECT
         value: omniroute-ai
       - key: OPENROUTER_SITE_URL
-        sync: false
+        value: https://omniroute-ai.vercel.app
       - key: OPENROUTER_APP_NAME
         value: OmniRoute AI
       - key: SIMPLE_MODEL
