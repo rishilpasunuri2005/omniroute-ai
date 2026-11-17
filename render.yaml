@@ -7,7 +7,7 @@ services:
     plan: free
     envVars:
       - key: ENVIRONMENT
-        value: production
+        value: staging       # the backend refuses to boot with AUTH_REQUIRED=false under "production" (by design); flip both together once Clerk is configured
       - key: DATABASE_URL
         sync: false          # set manually in Render dashboard from Supabase (session pooler string)
       - key: AUTH_REQUIRED
