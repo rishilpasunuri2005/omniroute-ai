@@ -15,10 +15,40 @@ class ChatMessage(BaseModel):
         return value
 
 
+MAX_ATTACHMENT_CHARS = 12000
+
+
+class Attachment(BaseModel):
+    """A single Markdown file the user attached as context for the chat."""
+
+    filename: str = Field(min_length=1, max_length=255)
+    content: str = Field(min_length=1, max_length=MAX_ATTACHMENT_CHARS)
+
+    @field_validator("filename")
+    @classmethod
+    def validate_filename(cls, value: str) -> str:
+        name = value.strip()
+        if not name.lower().endswith(".md") or len(name) <= len(".md"):
+            raise ValueError("only .md files are accepted")
+        if "/" in name or "\\" in name or any(ord(char) < 32 for char in name):
+            raise ValueError("invalid file name")
+        return name
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, value: str) -> str:
+        if "\x00" in value:
+            raise ValueError("file is not valid text")
+        if not value.strip():
+            raise ValueError("file is empty")
+        return value
+
+
 class ChatRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=24000)
     conversation_id: str | None = None
     history: list[ChatMessage] = Field(default_factory=list, max_length=20)
+    attachment: Attachment | None = None
     stream: bool = False
 
 

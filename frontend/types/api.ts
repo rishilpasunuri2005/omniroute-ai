@@ -30,6 +30,11 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface Attachment {
+  filename: string;
+  content: string;
+}
+
 export interface ChatResponse {
   conversation_id: string;
   response: string;

@@ -1,4 +1,4 @@
-import type { AnalyticsResponse, ChatMessage, ModelInfo, StreamEvent } from "@/types/api";
+import type { AnalyticsResponse, Attachment, ChatMessage, ModelInfo, StreamEvent } from "@/types/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -19,6 +19,7 @@ export async function streamChat(
   prompt: string,
   conversationId: string | null,
   history: ChatMessage[],
+  attachment: Attachment | null,
   onEvent: (event: StreamEvent) => void,
 ) {
   const controller = new AbortController();
@@ -28,7 +29,13 @@ export async function streamChat(
     const response = await fetch(`${API_URL}/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...authHeaders(token) },
-      body: JSON.stringify({ prompt, conversation_id: conversationId, history, stream: true }),
+      body: JSON.stringify({
+        prompt,
+        conversation_id: conversationId,
+        history,
+        stream: true,
+        ...(attachment ? { attachment } : {}),
+      }),
       signal: controller.signal,
     });
 

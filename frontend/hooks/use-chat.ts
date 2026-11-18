@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 
 import { streamChat } from "@/services/api";
-import type { ChatMessage, ChatResponse, Classification, Usage, WorkflowStep } from "@/types/api";
+import type { Attachment, ChatMessage, ChatResponse, Classification, Usage, WorkflowStep } from "@/types/api";
 import { sanitizeText } from "@/lib/sanitize";
 
 interface UiMessage extends ChatMessage {
   id: string;
   statusText?: string;
+  attachmentName?: string;
   metadata?: {
     model?: string;
     latencyMs?: number;
@@ -34,6 +35,8 @@ export function useChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<ChatResponse | null>(null);
+  // The attached file stays with the conversation (sent with each message) until removed.
+  const [attachment, setAttachment] = useState<Attachment | null>(null);
 
   const apiHistory = useMemo(
     () => messages.filter((item) => item.id !== "welcome").map(({ role, content }) => ({ role, content })),
@@ -49,13 +52,13 @@ export function useChat() {
     const sanitizedPrompt = sanitizeText(prompt.trim());
     setMessages((current) => [
       ...current,
-      { ...userMessage, content: sanitizedPrompt },
+      { ...userMessage, content: sanitizedPrompt, attachmentName: attachment?.filename },
       { id: assistantId, role: "assistant", content: "" },
     ]);
 
     try {
       const token = await getToken();
-      await streamChat(token, sanitizedPrompt, conversationId, apiHistory, (event) => {
+      await streamChat(token, sanitizedPrompt, conversationId, apiHistory, attachment, (event) => {
         if (event.type === "status") {
           setMessages((current) =>
             current.map((message) =>
@@ -121,5 +124,5 @@ export function useChat() {
     }
   }
 
-  return { messages, isLoading, error, lastResult, submit };
+  return { messages, isLoading, error, lastResult, attachment, setAttachment, submit };
 }
