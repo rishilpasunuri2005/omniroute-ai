@@ -17,13 +17,13 @@ export function AnalyticsSection() {
       <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         {/* Header */}
         <div className="max-w-2xl">
-          <span className="text-xs text-[var(--color-muted)] block mb-2">
+          <span className="text-sm text-[var(--color-muted)] block mb-2">
             Performance telemetry
           </span>
-          <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+          <h2 className="text-[length:var(--text-section)] text-[var(--color-ink)]">
             Observed benchmark indicators
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+          <p className="mt-4 text-base sm:text-base text-[var(--color-muted)] leading-relaxed">
             Measurable latency, efficiency, and cost differentials across multi-model dispatch tiers.
           </p>
         </div>
@@ -38,18 +38,18 @@ export function AnalyticsSection() {
                 className="bg-[var(--color-paper-2)] p-6 sm:p-8 flex flex-col justify-between feature-card"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-[var(--color-muted)]">{metric.label}</span>
+                  <span className="text-sm text-[var(--color-muted)]">{metric.label}</span>
                   <Icon className="h-4 w-4 text-[var(--color-muted)]" />
                 </div>
                 <div className="mt-6 flex items-baseline gap-1.5">
                   <span className="text-3xl sm:text-4xl font-light text-[var(--color-ink)] num-tabular tracking-tight">
                     {metric.value}
                   </span>
-                  <span className="text-xs text-[var(--color-muted)] font-normal">
+                  <span className="text-sm text-[var(--color-muted)] font-normal">
                     {metric.unit}
                   </span>
                 </div>
-                <p className="mt-3 text-xs text-[var(--color-muted)] leading-relaxed">
+                <p className="mt-3 text-sm text-[var(--color-muted)] leading-relaxed">
                   {metric.description}
                 </p>
               </div>

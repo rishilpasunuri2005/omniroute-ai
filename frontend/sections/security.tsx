@@ -41,13 +41,13 @@ export function SecuritySection() {
       <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         {/* Header */}
         <div className="max-w-2xl">
-          <span className="text-xs text-[var(--color-muted)] block mb-2">
+          <span className="text-sm text-[var(--color-muted)] block mb-2">
             Defense in depth
           </span>
-          <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+          <h2 className="text-[length:var(--text-section)] text-[var(--color-ink)]">
             Verified boundary controls
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+          <p className="mt-4 text-base sm:text-base text-[var(--color-muted)] leading-relaxed">
             Every layer of the routing and execution pipeline is hardened against cross-tenant leaks and quota exhaustion.
           </p>
         </div>
@@ -68,7 +68,7 @@ export function SecuritySection() {
                   <h3 className="mt-6 text-base font-medium text-[var(--color-ink)]">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed">
+                  <p className="mt-2 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

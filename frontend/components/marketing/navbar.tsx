@@ -26,7 +26,7 @@ export function Navbar() {
           <div className="flex h-7 w-7 items-center justify-center bg-[var(--color-paper-2)] border border-[var(--color-rule)]">
             <GitBranch className="h-3.5 w-3.5 text-[var(--color-accent)]" />
           </div>
-          <span className="text-sm font-medium tracking-tight">OmniRoute AI</span>
+          <span className="text-base font-medium tracking-tight">OmniRoute AI</span>
         </Link>
 
         {/* Desktop Nav */}
@@ -35,7 +35,7 @@ export function Navbar() {
             <a
               key={link.label}
               href={link.href}
-              className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] hover:underline active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
+              className="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] hover:underline active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
             >
               {link.label}
             </a>
@@ -47,7 +47,7 @@ export function Navbar() {
           {process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && (
             <Link
               href="/sign-in"
-              className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
+              className="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
             >
               Sign in
             </Link>
@@ -79,7 +79,7 @@ export function Navbar() {
                 key={link.label}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
+                className="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)]"
               >
                 {link.label}
               </a>
@@ -89,7 +89,7 @@ export function Navbar() {
                 <Link
                   href="/sign-in"
                   onClick={() => setOpen(false)}
-                  className="text-xs text-[var(--color-muted)] py-1"
+                  className="text-sm text-[var(--color-muted)] py-1"
                 >
                   Sign in
                 </Link>

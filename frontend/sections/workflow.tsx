@@ -41,13 +41,13 @@ export function WorkflowSection() {
       <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         {/* Section Header */}
         <div className="max-w-2xl">
-          <span className="text-xs text-[var(--color-muted)] block mb-2">
+          <span className="text-sm text-[var(--color-muted)] block mb-2">
             Execution pipeline
           </span>
-          <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+          <h2 className="text-[length:var(--text-section)] text-[var(--color-ink)]">
             How requests move through the graph
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+          <p className="mt-4 text-base sm:text-base text-[var(--color-muted)] leading-relaxed">
             Every prompt flows through an orchestrated pipeline of classification, dispatch, execution, and validation.
           </p>
         </div>
@@ -63,15 +63,15 @@ export function WorkflowSection() {
               >
                 <div>
                   <div className="flex items-center justify-between pb-3 border-b border-[var(--color-rule)]">
-                    <span className="num-tabular text-xs font-mono text-[var(--color-accent)]">
+                    <span className="num-tabular text-sm font-mono text-[var(--color-accent)]">
                       {step.stage}
                     </span>
                     <Icon className="h-4 w-4 text-[var(--color-muted)]" />
                   </div>
-                  <h3 className="mt-4 text-sm font-medium text-[var(--color-ink)]">
+                  <h3 className="mt-4 text-base font-medium text-[var(--color-ink)]">
                     {step.title}
                   </h3>
-                  <p className="mt-2 text-xs text-[var(--color-muted)] leading-relaxed">
+                  <p className="mt-2 text-sm text-[var(--color-muted)] leading-relaxed">
                     {step.description}
                   </p>
                 </div>

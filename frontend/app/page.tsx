@@ -9,7 +9,7 @@ import { CtaSection } from "@/sections/cta";
 
 export default function LandingPage() {
   return (
-    <div className="grid-bg min-h-screen">
+    <div className="min-h-screen">
       <Navbar />
       <main>
         <HeroSection />

@@ -23,7 +23,7 @@ const clerkAppearance = {
 
 export default function LoginPage() {
   return (
-    <div className="grid-bg relative flex min-h-screen items-center justify-center px-4 py-16">
+    <div className="relative flex min-h-screen items-center justify-center px-4 py-16">
       <div className="relative w-full max-w-md">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5">

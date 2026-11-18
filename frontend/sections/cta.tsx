@@ -9,13 +9,13 @@ export function CtaSection() {
       <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         <div className="surface-plate p-8 sm:p-12 lg:p-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div className="max-w-xl">
-            <span className="text-xs text-[var(--color-muted)] block mb-2">
+            <span className="text-sm text-[var(--color-muted)] block mb-2">
               Ready to deploy
             </span>
-            <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+            <h2 className="text-[length:var(--text-section)] text-[var(--color-ink)]">
               Build with multi-model routing
             </h2>
-            <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+            <p className="mt-4 text-base sm:text-base text-[var(--color-muted)] leading-relaxed">
               Start dispatching tasks across specialized models today. Free local sandbox included.
             </p>
           </div>

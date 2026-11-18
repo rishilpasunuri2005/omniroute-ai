@@ -54,13 +54,13 @@ export function FeaturesSection() {
       <div className="mx-auto max-w-[var(--container)] px-4 sm:px-8 lg:px-12">
         {/* Section Header */}
         <div className="max-w-2xl">
-          <span className="text-xs text-[var(--color-muted)] block mb-2">
+          <span className="text-sm text-[var(--color-muted)] block mb-2">
             Architecture capabilities
           </span>
-          <h2 className="text-[var(--text-section)] text-[var(--color-ink)]">
+          <h2 className="text-[length:var(--text-section)] text-[var(--color-ink)]">
             Everything needed for model orchestration
           </h2>
-          <p className="mt-4 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
+          <p className="mt-4 text-base sm:text-base text-[var(--color-muted)] leading-relaxed">
             A unified runtime for classifying, dispatching, and monitoring multi-model agentic workloads.
           </p>
         </div>
@@ -81,7 +81,7 @@ export function FeaturesSection() {
                   <h3 className="mt-6 text-base font-medium text-[var(--color-ink)]">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-xs sm:text-sm text-[var(--color-muted)] leading-relaxed">
+                  <p className="mt-2 text-sm sm:text-base text-[var(--color-muted)] leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

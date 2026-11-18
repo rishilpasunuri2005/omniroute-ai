@@ -35,9 +35,9 @@ export function Footer() {
               <div className="flex h-7 w-7 items-center justify-center bg-[var(--color-paper-2)] border border-[var(--color-rule)]">
                 <GitBranch className="h-3.5 w-3.5 text-[var(--color-accent)]" />
               </div>
-              <span className="text-sm font-medium tracking-tight">OmniRoute AI</span>
+              <span className="text-base font-medium tracking-tight">OmniRoute AI</span>
             </Link>
-            <p className="mt-4 max-w-sm text-xs leading-relaxed text-[var(--color-muted)]">
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--color-muted)]">
               Multi-model agent orchestration platform. Dynamically classify, route, and validate AI tasks with full cost and latency visibility.
             </p>
             <div className="mt-5 flex gap-2">
@@ -56,7 +56,7 @@ export function Footer() {
           {/* Nav Categories */}
           {Object.entries(footerLinks).map(([title, links]) => (
             <div key={title}>
-              <span className="text-xs font-medium text-[var(--color-ink)] block">
+              <span className="text-sm font-medium text-[var(--color-ink)] block">
                 {title}
               </span>
               <ul className="mt-4 space-y-2.5">
@@ -64,7 +64,7 @@ export function Footer() {
                   <li key={link.label}>
                     <a
                       href={link.href}
-                      className="text-xs text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] hover:underline active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
+                      className="text-sm text-[var(--color-muted)] transition-colors hover:text-[var(--color-ink)] hover:underline active:opacity-85 focus-visible:outline-2 focus-visible:outline-[var(--color-focus)]"
                     >
                       {link.label}
                     </a>
@@ -75,7 +75,7 @@ export function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 pt-6 border-t border-[var(--color-rule)] flex flex-col items-center justify-between gap-4 sm:flex-row text-[11px] text-[var(--color-muted)]">
+        <div className="mt-14 pt-6 border-t border-[var(--color-rule)] flex flex-col items-center justify-between gap-4 sm:flex-row text-xs text-[var(--color-muted)]">
           <span>
             © {new Date().getFullYear()} OmniRoute AI. Architecture licensed under MIT.
           </span>
