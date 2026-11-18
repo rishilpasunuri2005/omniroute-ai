@@ -1,8 +1,11 @@
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, JSON, Uuid
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+
+_JSONVariant = JSON().with_variant(JSONB, "postgresql")
 
 from app.models.base import Base
 
@@ -20,7 +23,7 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(40), default="user")
     daily_token_budget: Mapped[int] = mapped_column(Integer, default=100000)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class Chat(Base):
@@ -29,7 +32,7 @@ class Chat(Base):
     id: Mapped[str] = mapped_column(Uuid(as_uuid=False), primary_key=True, default=_uuid_str)
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(160), default="Untitled chat")
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class Workflow(Base):
@@ -39,9 +42,9 @@ class Workflow(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(120))
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    graph: Mapped[dict] = mapped_column(JSON, default=dict)
+    graph: Mapped[dict] = mapped_column(_JSONVariant, default=dict)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class RoutingLog(Base):
@@ -57,7 +60,7 @@ class RoutingLog(Base):
     confidence: Mapped[float] = mapped_column(Float)
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
     success: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class AnalyticsSnapshot(Base):
@@ -67,8 +70,8 @@ class AnalyticsSnapshot(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=True, index=True)
     metric_name: Mapped[str] = mapped_column(String(120), index=True)
     metric_value: Mapped[float] = mapped_column(Float)
-    dimensions: Mapped[dict] = mapped_column(JSON, default=dict)
-    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    dimensions: Mapped[dict] = mapped_column(_JSONVariant, default=dict)
+    captured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class TokenUsage(Base):
@@ -94,7 +97,7 @@ class ApiKey(Base):
     display_name: Mapped[str] = mapped_column(String(120))
     last_four: Mapped[str] = mapped_column(String(8))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
 
 
 class ModelMetric(Base):
@@ -109,4 +112,4 @@ class ModelMetric(Base):
     failed_requests: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     total_tokens: Mapped[int] = mapped_column(Integer, default=0, server_default="0")
     average_latency_ms: Mapped[float] = mapped_column(Float, default=0.0, server_default="0.0")
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

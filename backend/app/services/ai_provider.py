@@ -122,6 +122,13 @@ class AIProviderService:
                     "ai_provider_request_failed provider=%s model=%s attempt=%d error=%s",
                     provider, model, attempt + 1, error_detail[:200],
                 )
+                # A 4xx other than 429 (rate limited) won't succeed on retry -
+                # bad API key, malformed request, etc. Fail fast instead of
+                # burning the provider's rate-limit quota on guaranteed repeats.
+                status_code = getattr(getattr(exc, "response", None), "status_code", None)
+                non_retryable = status_code is not None and status_code != 429 and status_code < 500
+                if non_retryable:
+                    break
                 if attempt < self.settings.max_retries:
                     await asyncio.sleep(0.35 * (attempt + 1))
 

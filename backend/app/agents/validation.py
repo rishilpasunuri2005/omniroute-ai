@@ -2,6 +2,17 @@ import json
 
 from app.schemas.routing import ValidationResult
 
+_TERMINAL_PUNCTUATION = (".", "!", "?")
+
+
+def _is_short_factual_answer(text: str) -> bool:
+    # A short reply that ends with terminal punctuation ("Yes.", "42.") or is
+    # a single alphanumeric token ("42", "Yes", "N/A") reads as a complete
+    # short answer, not a truncated response.
+    if text.endswith(_TERMINAL_PUNCTUATION):
+        return True
+    return text.replace(" ", "").isalnum()
+
 
 class ValidationAgent:
     def validate(self, response: str, expected_json: bool = False) -> ValidationResult:
@@ -11,7 +22,7 @@ class ValidationAgent:
         if not stripped:
             issues.append("empty_response")
         # Only flag as incomplete if truly tiny AND not a short factual answer
-        if len(stripped) < 8:
+        if len(stripped) < 8 and not _is_short_factual_answer(stripped):
             issues.append("possibly_incomplete_output")
         if expected_json:
             try:

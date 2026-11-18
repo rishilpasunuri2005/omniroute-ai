@@ -52,7 +52,8 @@ class AgentWorkflow:
         )
 
         user = await get_or_create_user(session, auth, self.settings)
-        await enforce_token_budget(session, user, estimate_tokens(sanitized_request.prompt))
+        reserved_prompt_tokens = estimate_tokens(sanitized_request.prompt)
+        await enforce_token_budget(session, user, reserved_prompt_tokens)
         state = await self.graph.ainvoke({"request": sanitized_request, "conversation_id": conversation_id})
 
         route = state["route"]
@@ -99,7 +100,10 @@ class AgentWorkflow:
                 success=validation.passed,
             )
         )
-        await record_token_usage(session, user, prompt_tokens, completion_tokens, estimated_cost)
+        await record_token_usage(
+            session, user, prompt_tokens, completion_tokens, estimated_cost,
+            reserved_tokens=reserved_prompt_tokens,
+        )
         await record_model_metric(session, provider, model_used, total_tokens, latency_ms, validation.passed)
         await session.commit()
 
@@ -165,7 +169,7 @@ class AgentWorkflow:
         request = state["request"]
         route = state["route"]
         system_prompt = CODING_SYSTEM_PROMPT if route.classification.task_type in {"coding", "debugging"} else GENERAL_SYSTEM_PROMPT
-        composed_prompt = self._compose_prompt(request, state.get("plan", ""))
+        composed_prompt = self._compose_prompt(request, state.get("plan", ""), self.settings.max_history_messages)
         completion = await self._generate_with_fallback(
             primary_provider=route.provider,
             primary_model=route.selected_model,
@@ -239,8 +243,8 @@ class AgentWorkflow:
         return "json" in prompt.lower() or "schema" in prompt.lower()
 
     @staticmethod
-    def _compose_prompt(request: ChatRequest, plan: str) -> str:
-        history = "\n".join(f"{item.role}: {item.content}" for item in request.history[-8:])
+    def _compose_prompt(request: ChatRequest, plan: str, max_history_messages: int) -> str:
+        history = "\n".join(f"{item.role}: {item.content}" for item in request.history[-max_history_messages:])
         sections = []
         if history:
             sections.append(f"Conversation history:\n{history}")

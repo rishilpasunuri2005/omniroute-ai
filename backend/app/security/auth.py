@@ -37,7 +37,10 @@ async def get_current_user(
     settings: Annotated[Settings, Depends(get_settings)],
 ) -> AuthContext:
     if not settings.auth_required:
-        user = AuthContext(user_id="dev-user", role="admin", email="dev@local.test")
+        # role="user", not "admin": with auth disabled every caller shares this
+        # identity, so granting admin here would leak cross-tenant data (e.g. the
+        # unscoped analytics aggregate) to anyone hitting the API.
+        user = AuthContext(user_id="dev-user", role="user", email="dev@local.test")
         request.state.auth_user = user
         return user
 

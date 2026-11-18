@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS users (
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX IF NOT EXISTS ix_users_clerk_user_id ON users(clerk_user_id);
+-- clerk_user_id already has an index via its UNIQUE constraint above; no separate index needed.
 CREATE INDEX IF NOT EXISTS ix_users_created_at ON users(created_at);
 
 -- 2. chats (depends on users)
@@ -145,3 +145,4 @@ CREATE TABLE IF NOT EXISTS model_metrics (
 );
 CREATE INDEX IF NOT EXISTS ix_model_metrics_provider ON model_metrics(provider);
 CREATE INDEX IF NOT EXISTS ix_model_metrics_model_name ON model_metrics(model_name);
+

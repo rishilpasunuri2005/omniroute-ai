@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
@@ -21,7 +22,16 @@ async def get_or_create_user(session: AsyncSession, auth: AuthContext, settings:
         role=auth.role,
         daily_token_budget=settings.per_user_daily_token_budget,
     )
-    session.add(user)
-    await session.flush()
+    try:
+        async with session.begin_nested():
+            session.add(user)
+            await session.flush()
+    except IntegrityError:
+        # Another concurrent request for the same brand-new user won the
+        # insert race on the clerk_user_id unique constraint; use their row.
+        existing = await session.scalar(select(User).where(User.clerk_user_id == auth.user_id))
+        if existing is None:
+            raise
+        return existing
     return user
 

@@ -1,6 +1,7 @@
 import logging
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.saas import ModelMetric
@@ -18,11 +19,26 @@ async def record_model_metric(
 ) -> None:
     try:
         metric = await session.scalar(
-            select(ModelMetric).where(ModelMetric.provider == provider, ModelMetric.model_name == model_name)
+            select(ModelMetric)
+            .where(ModelMetric.provider == provider, ModelMetric.model_name == model_name)
+            .with_for_update()
         )
         if not metric:
             metric = ModelMetric(provider=provider, model_name=model_name)
-            session.add(metric)
+            try:
+                async with session.begin_nested():
+                    session.add(metric)
+                    await session.flush()
+            except IntegrityError:
+                # Another concurrent request for the same provider/model pair
+                # already created the row; use theirs instead of erroring.
+                metric = await session.scalar(
+                    select(ModelMetric)
+                    .where(ModelMetric.provider == provider, ModelMetric.model_name == model_name)
+                    .with_for_update()
+                )
+                if metric is None:
+                    raise
 
         previous_requests = metric.total_requests or 0
         metric.total_requests = previous_requests + 1

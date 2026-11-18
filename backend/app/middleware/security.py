@@ -1,10 +1,14 @@
 import uuid
 from collections.abc import Awaitable, Callable
 
-from fastapi import HTTPException, Request, Response
+from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.config import Settings
+
+
+class _PayloadTooLarge(Exception):
+    pass
 
 
 class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
@@ -26,11 +30,18 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
             if message["type"] == "http.request":
                 received_bytes += len(message.get("body", b""))
                 if received_bytes > self.max_bytes:
-                    raise HTTPException(status_code=413, detail="Request payload too large")
+                    raise _PayloadTooLarge()
             return message
 
         request._receive = limited_receive
-        return await call_next(request)
+        try:
+            return await call_next(request)
+        except _PayloadTooLarge:
+            # Raised from inside the ASGI receive() wrapper above, which runs
+            # outside Starlette's HTTPException-handling layer — an
+            # HTTPException raised there would surface as a generic 500
+            # instead of a 413, so convert it directly here.
+            return Response("Request payload too large", status_code=413)
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):

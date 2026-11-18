@@ -1,8 +1,11 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import DateTime, Float, ForeignKey, Integer, String, Text, JSON, Uuid
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
+
+_JSONVariant = JSON().with_variant(JSONB, "postgresql")
 
 from app.models.base import Base
 
@@ -28,6 +31,6 @@ class ConversationTurn(Base):
     total_tokens: Mapped[int] = mapped_column(Integer, default=0)
     latency_ms: Mapped[int] = mapped_column(Integer, default=0)
     estimated_cost: Mapped[float] = mapped_column(Float, default=0.0)
-    validation: Mapped[dict] = mapped_column(JSON, default=dict)
-    workflow_trace: Mapped[list] = mapped_column(JSON, default=list)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.utcnow, index=True)
+    validation: Mapped[dict] = mapped_column(_JSONVariant, default=dict)
+    workflow_trace: Mapped[list] = mapped_column(_JSONVariant, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)

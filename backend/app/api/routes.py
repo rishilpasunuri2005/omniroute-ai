@@ -151,6 +151,11 @@ async def _stream_chat(
             elapsed = time.monotonic() - start
             if elapsed > _MAX_STREAM_WAIT_SECONDS:
                 task.cancel()
+                # Let the cancellation actually finish unwinding before we
+                # return - otherwise it can still be mid-await on `session`
+                # (closed by the request's dependency teardown right after
+                # this generator returns) when it finally gets cancelled.
+                await asyncio.gather(task, return_exceptions=True)
                 logger.error("stream_chat_timeout prompt=%s elapsed=%.1fs", payload.prompt[:80], elapsed)
                 yield json.dumps({"type": "error", "message": "Request timed out. Please try again with a simpler prompt."}) + "\n"
                 return
