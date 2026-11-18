@@ -57,7 +57,7 @@ export default function ModelsPage() {
       </motion.div>
 
       {error && (
-        <motion.div variants={staggerItem} className="rounded-lg border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-300">
+        <motion.div variants={staggerItem} className="rounded-none border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-300">
           {error}
         </motion.div>
       )}
@@ -65,7 +65,7 @@ export default function ModelsPage() {
       <motion.div variants={staggerItem} className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {loading
           ? [1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="skeleton h-48 w-full rounded-xl" />
+              <div key={i} className="skeleton h-48 w-full rounded-none" />
             ))
           : models.map((model) => (
               <Card
@@ -98,14 +98,14 @@ export default function ModelsPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3 text-sm">
+                  <div className="flex items-center justify-between rounded-none border border-border bg-card p-3 text-sm">
                     <span className="flex items-center gap-2 text-xs text-muted-foreground">
                       <DatabaseZap className="h-3.5 w-3.5" />
                       Provider
                     </span>
                     <span className="text-xs font-medium">{model.provider}</span>
                   </div>
-                  <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3 text-sm">
+                  <div className="flex items-center justify-between rounded-none border border-border bg-card p-3 text-sm">
                     <span className="flex items-center gap-2 text-xs text-muted-foreground">
                       <Wifi className="h-3.5 w-3.5" />
                       Context
@@ -132,7 +132,7 @@ export default function ModelsPage() {
               { title: "Escalate", desc: "Low-confidence routing escalates to reasoning model" },
               { title: "Repair", desc: "Validation failures are retried through fallback model" },
             ].map((item) => (
-              <div key={item.title} className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+              <div key={item.title} className="rounded-none border border-border bg-card p-4">
                 <p className="text-sm font-medium">{item.title}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{item.desc}</p>
               </div>

@@ -91,7 +91,7 @@ export default function WorkflowsPage() {
 
       {/* Pipeline Visualization */}
       <motion.div variants={staggerItem}>
-        <div className="rounded-xl border border-white/6 bg-black/20 p-6 backdrop-blur-xl">
+        <div className="rounded-none border border-border bg-card p-6">
           <div className="mb-4 flex items-center gap-2">
             <Sparkles className="h-4 w-4 text-primary" />
             <h2 className="text-sm font-semibold">Routing Pipeline</h2>
@@ -107,9 +107,9 @@ export default function WorkflowsPage() {
                   transition={{ delay: index * 0.1 }}
                   className="relative"
                 >
-                  <div className={`rounded-xl border ${step.borderColor} bg-white/[0.02] p-5 transition-colors hover:bg-white/[0.04]`}>
+                  <div className={`rounded-none border ${step.borderColor} bg-card p-5 transition-colors hover:bg-muted`}>
                     <div className="flex items-center justify-between gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${step.bgColor}`}>
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-none ${step.bgColor}`}>
                         <Icon className={`h-5 w-5 ${step.color}`} />
                       </div>
                       <Badge variant="secondary" className="text-[10px]">Step {index + 1}</Badge>
@@ -145,7 +145,7 @@ export default function WorkflowsPage() {
             {workflows.map((wf) => (
               <div
                 key={wf.name}
-                className="flex flex-wrap items-center gap-4 rounded-lg border border-white/5 bg-white/[0.02] p-4 transition hover:border-primary/10"
+                className="flex flex-wrap items-center gap-4 rounded-none border border-border bg-card p-4 transition hover:border-primary/10"
               >
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium">{wf.name}</p>
@@ -156,7 +156,7 @@ export default function WorkflowsPage() {
                   className={
                     wf.status === "Active"
                       ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-400"
-                      : "border-white/10 bg-white/5 text-muted-foreground"
+                      : "border-border bg-card text-muted-foreground"
                   }
                 >
                   {wf.status}
@@ -181,7 +181,7 @@ export default function WorkflowsPage() {
               "Complex reasoning prompts use the strongest available model",
               "Low classifier confidence escalates to the reasoning route",
             ].map((rule) => (
-              <div key={rule} className="flex gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-sm">
+              <div key={rule} className="flex gap-3 rounded-none border border-border bg-card p-3 text-sm">
                 <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                 <span className="text-xs text-muted-foreground">{rule}</span>
               </div>
@@ -196,7 +196,7 @@ export default function WorkflowsPage() {
           </CardHeader>
           <CardContent className="grid gap-2 sm:grid-cols-2">
             {["Groq (Llama)", "OpenRouter", "NVIDIA NIM", "OpenAI APIs", "Anthropic Claude"].map((provider) => (
-              <div key={provider} className="rounded-lg border border-white/5 bg-white/[0.02] p-3 text-xs font-medium">
+              <div key={provider} className="rounded-none border border-border bg-card p-3 text-xs font-medium">
                 {provider}
               </div>
             ))}

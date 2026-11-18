@@ -1,5 +1,5 @@
 /* Impeccable · world: Interactive Type Specimen (variable-font-specimen) · mode: persuade+operate · redesign: full
- * axes: light/grotesk-mono/precision · posture: committed · direction: .impeccable/surfaces/frontend-app-page-tsx.md */
+ * axes: dark/grotesk-mono/precision (Specimen Night, orange accent) · posture: committed · direction: .impeccable/surfaces/frontend-app-page-tsx.md */
 @import url("./tokens.css");
 @import url("./base.css");
 @tailwind base;
@@ -8,25 +8,25 @@
 
 /* ─── Tailwind HSL Compatibility Tokens mapped from the Type Specimen world ─── */
 :root {
-  --background: 60 9% 98%;
-  --foreground: 60 3% 8%;
-  --card: 0 0% 100%;
-  --card-foreground: 60 3% 8%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 60 3% 8%;
-  --border: 60 4% 85%;
-  --input: 60 4% 85%;
-  --muted: 60 6% 95%;
-  --muted-foreground: 255 8% 35%;
-  --primary: 224 65% 38%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 60 6% 95%;
-  --secondary-foreground: 60 3% 8%;
-  --accent: 224 65% 38%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 5 70% 40%;
+  --background: 240 5% 6%;
+  --foreground: 60 10% 94%;
+  --card: 240 3% 8%;
+  --card-foreground: 60 10% 94%;
+  --popover: 240 3% 8%;
+  --popover-foreground: 60 10% 94%;
+  --border: 240 4% 17%;
+  --input: 240 4% 17%;
+  --muted: 240 3% 11%;
+  --muted-foreground: 240 5% 64%;
+  --primary: 24 100% 62%;
+  --primary-foreground: 24 70% 6%;
+  --secondary: 240 3% 11%;
+  --secondary-foreground: 60 10% 94%;
+  --accent: 24 100% 62%;
+  --accent-foreground: 24 70% 6%;
+  --destructive: 5 75% 62%;
   --destructive-foreground: 0 0% 100%;
-  --ring: 224 65% 38%;
+  --ring: 24 100% 62%;
   --radius: 0px;
 }
 

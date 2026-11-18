@@ -47,11 +47,11 @@ export default function SettingsPage() {
           <CardContent className="grid gap-4 md:grid-cols-2">
             <label className="space-y-2">
               <span className="text-xs text-muted-foreground">Display Name</span>
-              <Input placeholder="Your name" defaultValue="" className="bg-white/[0.03] border-white/8" />
+              <Input placeholder="Your name" defaultValue="" className="bg-card border-border" />
             </label>
             <label className="space-y-2">
               <span className="text-xs text-muted-foreground">Email</span>
-              <Input placeholder="you@example.com" defaultValue="" className="bg-white/[0.03] border-white/8" />
+              <Input placeholder="you@example.com" defaultValue="" className="bg-card border-border" />
             </label>
           </CardContent>
         </Card>
@@ -80,7 +80,7 @@ export default function SettingsPage() {
                 <Input
                   type="password"
                   placeholder={key.placeholder}
-                  className="bg-white/[0.03] border-white/8 font-mono text-xs"
+                  className="bg-card border-border font-mono text-xs"
                 />
               </label>
             ))}
@@ -100,15 +100,15 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4 text-center">
+              <div className="rounded-none border border-border bg-card p-4 text-center">
                 <p className="text-2xl font-bold text-primary">100K</p>
                 <p className="mt-1 text-xs text-muted-foreground">Daily Budget</p>
               </div>
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4 text-center">
+              <div className="rounded-none border border-border bg-card p-4 text-center">
                 <p className="text-2xl font-bold">0</p>
                 <p className="mt-1 text-xs text-muted-foreground">Used Today</p>
               </div>
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4 text-center">
+              <div className="rounded-none border border-border bg-card p-4 text-center">
                 <p className="text-2xl font-bold text-emerald-400">100K</p>
                 <p className="mt-1 text-xs text-muted-foreground">Remaining</p>
               </div>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
             ].map(([label, value]) => (
               <label key={label} className="space-y-2">
                 <span className="text-xs text-muted-foreground">{label}</span>
-                <Input readOnly value={value} className="bg-white/[0.03] border-white/8 text-xs" />
+                <Input readOnly value={value} className="bg-card border-border text-xs" />
               </label>
             ))}
           </CardContent>
@@ -154,7 +154,7 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
 
-            <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-4">
+            <div className="flex items-center justify-between rounded-none border border-border bg-card p-4">
               <div className="flex items-center gap-3">
                 <Bell className="h-4 w-4 text-primary" />
                 <div>
@@ -164,10 +164,10 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={() => setNotifications(!notifications)}
-                className={`relative h-6 w-11 rounded-full transition-colors ${notifications ? "bg-primary" : "bg-white/10"}`}
+                className={`relative h-6 w-11 rounded-none transition-colors ${notifications ? "bg-primary" : "bg-card"}`}
               >
                 <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${notifications ? "left-[22px]" : "left-0.5"}`}
+                  className={`absolute top-0.5 h-5 w-5 rounded-none bg-foreground transition-transform ${notifications ? "left-[22px]" : "left-0.5"}`}
                 />
               </button>
             </div>

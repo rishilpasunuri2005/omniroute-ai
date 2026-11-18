@@ -4,12 +4,12 @@ import { GitBranch } from "lucide-react";
 
 const clerkAppearance = {
   variables: {
-    colorPrimary: "#1e40af",
-    colorText: "#0d0d0d",
-    colorTextSecondary: "#5b5b57",
-    colorBackground: "#ffffff",
-    colorInputBackground: "#ffffff",
-    colorInputText: "#0d0d0d",
+    colorPrimary: "#FF8A3D",
+    colorText: "#F2F2EE",
+    colorTextSecondary: "#A0A0A8",
+    colorBackground: "#151516",
+    colorInputBackground: "#0E0E0F",
+    colorInputText: "#F2F2EE",
     borderRadius: "0px",
     fontFamily: "var(--font-space-grotesk), system-ui, sans-serif",
   },
