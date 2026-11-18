@@ -70,7 +70,7 @@ export default function ModelsPage() {
           : models.map((model) => (
               <Card
                 key={`${model.name}-${model.role}`}
-                className="group transition-all hover:border-primary/20"
+                className="group transition-colors hover:border-primary/20"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-3">

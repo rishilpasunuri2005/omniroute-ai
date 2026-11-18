@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
                   transition={{ delay: index * 0.1 }}
                   className="relative"
                 >
-                  <div className={`rounded-xl border ${step.borderColor} bg-white/[0.02] p-5 transition-all hover:bg-white/[0.04]`}>
+                  <div className={`rounded-xl border ${step.borderColor} bg-white/[0.02] p-5 transition-colors hover:bg-white/[0.04]`}>
                     <div className="flex items-center justify-between gap-3">
                       <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${step.bgColor}`}>
                         <Icon className={`h-5 w-5 ${step.color}`} />

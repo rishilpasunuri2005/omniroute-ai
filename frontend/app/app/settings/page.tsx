@@ -6,11 +6,9 @@ import {
   Bell,
   Coins,
   Key,
-  Moon,
   Palette,
   Settings2,
   SlidersHorizontal,
-  Sun,
   User,
 } from "lucide-react";
 import { staggerContainer, staggerItem } from "@/lib/animations";
@@ -20,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function SettingsPage() {
-  const [darkMode, setDarkMode] = useState(true);
   const [notifications, setNotifications] = useState(true);
 
   return (

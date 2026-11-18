@@ -1,34 +1,32 @@
-/* Hallmark · shape: narrative-workflow · genre: atmospheric · theme: Midnight (by request) · redesign: full
- * hero: settled · nav: edge-aligned · footer: mast · imagery: the product · signature: live model routing telemetry
- * axes: dark/grotesk-sans/cool · posture: committed · contrast: pass · fold: pass · v2.0.0 */
-/* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5 · weakest: S, elevated contrast on secondary interactive states */
+/* Impeccable · world: Interactive Type Specimen (variable-font-specimen) · mode: persuade+operate · redesign: full
+ * axes: light/grotesk-mono/precision · posture: committed · direction: .impeccable/surfaces/frontend-app-page-tsx.md */
 @import url("./tokens.css");
 @import url("./base.css");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Tailwind HSL Compatibility Tokens mapped from Midnight ─── */
+/* ─── Tailwind HSL Compatibility Tokens mapped from the Type Specimen world ─── */
 :root {
-  --background: 264 48% 14%;
-  --foreground: 250 16% 95%;
-  --card: 264 52% 18.5%;
-  --card-foreground: 250 16% 95%;
-  --popover: 264 52% 18.5%;
-  --popover-foreground: 250 16% 95%;
-  --border: 264 58% 29%;
-  --input: 264 58% 29%;
-  --muted: 264 55% 23%;
-  --muted-foreground: 256 40% 73%;
-  --primary: 230 11% 80%;
-  --primary-foreground: 264 50% 16%;
-  --secondary: 264 52% 18.5%;
-  --secondary-foreground: 250 16% 95%;
-  --accent: 230 11% 80%;
-  --accent-foreground: 264 50% 16%;
-  --destructive: 27 15% 72%;
-  --destructive-foreground: 250 16% 95%;
-  --ring: 228 12% 84%;
+  --background: 60 9% 98%;
+  --foreground: 60 3% 8%;
+  --card: 0 0% 100%;
+  --card-foreground: 60 3% 8%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 60 3% 8%;
+  --border: 60 4% 85%;
+  --input: 60 4% 85%;
+  --muted: 60 6% 95%;
+  --muted-foreground: 255 8% 35%;
+  --primary: 224 65% 38%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 60 6% 95%;
+  --secondary-foreground: 60 3% 8%;
+  --accent: 224 65% 38%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 5 70% 40%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 224 65% 38%;
   --radius: 0px;
 }
 
@@ -174,4 +172,30 @@ h3, h4 {
 .feature-card:hover {
   background: var(--color-paper-3);
   border-color: var(--color-rule-2);
+}
+
+/* ─── Semantic status (flat, token-driven, never decorative) ─── */
+.text-success { color: var(--color-success); }
+.text-error { color: var(--color-error); }
+.border-error { border-color: var(--color-error); }
+.bg-error-subtle { background: color-mix(in oklab, var(--color-error) 9%, var(--color-paper)); }
+.bg-success-subtle { background: color-mix(in oklab, var(--color-success) 10%, var(--color-paper)); }
+
+/* ─── Loading skeleton ─── */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-ink) 6%, transparent), transparent);
+  animation: skeleton-sweep 1.6s var(--ease-in-out) infinite;
+}
+@keyframes skeleton-sweep {
+  100% { transform: translateX(100%); }
 }

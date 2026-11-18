@@ -12,7 +12,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["var(--font-space-grotesk)", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["var(--font-ibm-plex-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -39,9 +40,7 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       boxShadow: {
-        glow: "0 0 36px rgba(45, 212, 191, 0.18)",
-        "glow-lg": "0 0 60px rgba(45, 212, 191, 0.25)",
-        "glow-sm": "0 0 12px rgba(45, 212, 191, 0.12)",
+        card: "var(--shadow-card)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-out",

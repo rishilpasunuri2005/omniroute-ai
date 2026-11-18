@@ -12,6 +12,15 @@ function getApiOrigin() {
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  async redirects() {
+    return [
+      { source: "/chat", destination: "/app/chat", permanent: true },
+      { source: "/dashboard", destination: "/app/dashboard", permanent: true },
+      { source: "/settings", destination: "/app/settings", permanent: true },
+      { source: "/workflows", destination: "/app/workflows", permanent: true },
+      { source: "/models", destination: "/app/models", permanent: true },
+    ];
+  },
   async headers() {
     const apiOrigin = getApiOrigin();
     const csp = [
