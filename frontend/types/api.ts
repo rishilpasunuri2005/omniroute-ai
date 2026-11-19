@@ -82,3 +82,11 @@ export type StreamEvent =
   | { type: "token"; content: string }
   | { type: "done"; result: ChatResponse };
 
+
+export interface KnowledgeDocument {
+  id: string;
+  filename: string;
+  char_count: number;
+  chunk_count: number;
+  created_at: string;
+}

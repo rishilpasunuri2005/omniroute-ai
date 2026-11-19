@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { UserButton } from "@clerk/nextjs";
 import {
   BarChart3,
+  BookOpen,
   Bot,
   ChevronLeft,
   GitBranch,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/app/chat", label: "Chat", icon: MessageSquare, badge: "live" },
   { href: "/app/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/app/knowledge", label: "Knowledge", icon: BookOpen },
   { href: "/app/models", label: "Models", icon: Bot },
   { href: "/app/workflows", label: "Workflows", icon: Workflow },
   { href: "/app/settings", label: "Settings", icon: Settings },

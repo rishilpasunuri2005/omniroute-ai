@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
+from app.api.knowledge import router as knowledge_router
 from app.api.routes import router
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -16,6 +17,7 @@ from app.db.session import engine
 from app.middleware.security import RequestSizeLimitMiddleware, SecurityHeadersMiddleware
 from app.models.base import Base
 from app.models.conversation import ConversationTurn  # noqa: F401
+from app.models.knowledge import KnowledgeChunk, KnowledgeDocument  # noqa: F401
 from app.models.saas import AnalyticsSnapshot, ApiKey, Chat, ModelMetric, RoutingLog, TokenUsage, User, Workflow  # noqa: F401
 from app.security.rate_limit import limiter
 
@@ -55,6 +57,7 @@ app.add_middleware(
 
 configure_telemetry(app, settings)
 app.include_router(router)
+app.include_router(knowledge_router)
 
 
 @app.exception_handler(RequestValidationError)

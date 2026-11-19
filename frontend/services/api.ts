@@ -1,4 +1,4 @@
-import type { AnalyticsResponse, Attachment, ChatMessage, ModelInfo, StreamEvent } from "@/types/api";
+import type { AnalyticsResponse, Attachment, ChatMessage, KnowledgeDocument, ModelInfo, StreamEvent } from "@/types/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -78,4 +78,30 @@ export async function fetchModels(token: string | null) {
   return parseResponse<ModelInfo[]>(
     await fetch(`${API_URL}/models`, { cache: "no-store", headers: authHeaders(token) }),
   );
+}
+
+export async function fetchKnowledge(token: string | null) {
+  return parseResponse<KnowledgeDocument[]>(
+    await fetch(`${API_URL}/knowledge`, { cache: "no-store", headers: authHeaders(token) }),
+  );
+}
+
+export async function uploadKnowledge(token: string | null, doc: Attachment) {
+  return parseResponse<KnowledgeDocument>(
+    await fetch(`${API_URL}/knowledge`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...authHeaders(token) },
+      body: JSON.stringify(doc),
+    }),
+  );
+}
+
+export async function deleteKnowledge(token: string | null, id: string) {
+  const response = await fetch(`${API_URL}/knowledge/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+    headers: authHeaders(token),
+  });
+  if (!response.ok) {
+    throw new Error((await response.text()) || `Request failed with ${response.status}`);
+  }
 }

@@ -1,3 +1,4 @@
+import logging
 import time
 import uuid
 from typing import Any, TypedDict
@@ -17,6 +18,7 @@ from app.security.auth import AuthContext
 from app.services.ai_provider import AIProviderService, ProviderCompletion
 from app.services.budget import enforce_token_budget, record_token_usage
 from app.services.metrics import record_model_metric
+from app.services.rag import RetrievedChunk, format_context, retrieve_context
 from app.services.token_counter import estimate_local_cost, estimate_tokens
 from app.services.users import get_or_create_user
 from app.utils.sanitize import sanitize_prompt
@@ -34,6 +36,7 @@ class WorkflowState(TypedDict, total=False):
     model_used: str
     provider: str
     usage: dict[str, int]
+    knowledge: list[RetrievedChunk]
 
 
 class AgentWorkflow:
@@ -54,7 +57,10 @@ class AgentWorkflow:
         user = await get_or_create_user(session, auth, self.settings)
         reserved_prompt_tokens = estimate_tokens(sanitized_request.prompt)
         await enforce_token_budget(session, user, reserved_prompt_tokens)
-        state = await self.graph.ainvoke({"request": sanitized_request, "conversation_id": conversation_id})
+        knowledge = await self._retrieve_knowledge(session, user.id, sanitized_request.prompt)
+        state = await self.graph.ainvoke(
+            {"request": sanitized_request, "conversation_id": conversation_id, "knowledge": knowledge}
+        )
 
         route = state["route"]
         trace = state["trace"]
@@ -143,6 +149,7 @@ class AgentWorkflow:
                     status="completed",
                     detail=f"Selected {route.provider}/{route.selected_model}: {route.reason}",
                 ),
+                *self._knowledge_steps(state.get("knowledge")),
             ],
         }
 
@@ -174,6 +181,8 @@ class AgentWorkflow:
             state.get("plan", ""),
             self.settings.max_history_messages,
             self.settings.max_prompt_chars,
+            knowledge=state.get("knowledge"),
+            knowledge_cap=self.settings.rag_context_max_chars,
         )
         completion = await self._generate_with_fallback(
             primary_provider=route.provider,
@@ -248,7 +257,14 @@ class AgentWorkflow:
         return "json" in prompt.lower() or "schema" in prompt.lower()
 
     @staticmethod
-    def _compose_prompt(request: ChatRequest, plan: str, max_history_messages: int, max_chars: int | None = None) -> str:
+    def _compose_prompt(
+        request: ChatRequest,
+        plan: str,
+        max_history_messages: int,
+        max_chars: int | None = None,
+        knowledge: list[RetrievedChunk] | None = None,
+        knowledge_cap: int = 6000,
+    ) -> str:
         history = "\n".join(f"{item.role}: {item.content}" for item in request.history[-max_history_messages:])
         sections = []
         if history:
@@ -256,6 +272,12 @@ class AgentWorkflow:
         if plan:
             sections.append(f"Planner output:\n{plan}")
         user_section = f"User prompt:\n{request.prompt}"
+        if knowledge:
+            used = sum(len(section) for section in sections) + len(user_section)
+            cap = knowledge_cap if max_chars is None else min(knowledge_cap, max_chars - used - 2)
+            knowledge_section = format_context(knowledge, cap) if cap > 0 else ""
+            if knowledge_section:
+                sections.append(knowledge_section)
         attachment_section = ""
         if request.attachment is not None:
             used = sum(len(section) for section in sections) + len(user_section)
@@ -292,6 +314,27 @@ class AgentWorkflow:
             if len(content) > room:
                 content = content[: room - len(note)] + note
         return f"{header}{content}{footer}"
+
+    async def _retrieve_knowledge(self, session: AsyncSession, user_id: str, prompt: str) -> list[RetrievedChunk]:
+        """Best-effort retrieval: a knowledge-base failure must never break chat."""
+        try:
+            return await retrieve_context(session, user_id, prompt, self.settings)
+        except Exception:  # noqa: BLE001
+            logging.getLogger(__name__).warning("knowledge_retrieval_failed", exc_info=True)
+            return []
+
+    @staticmethod
+    def _knowledge_steps(knowledge: list[RetrievedChunk] | None) -> list[WorkflowStep]:
+        if not knowledge:
+            return []
+        files = sorted({chunk.filename for chunk in knowledge})
+        return [
+            WorkflowStep(
+                agent="Knowledge Retrieval",
+                status="completed",
+                detail=f"Used {len(knowledge)} excerpt(s) from: {', '.join(files)}",
+            )
+        ]
 
     async def _generate_with_fallback(
         self,

@@ -27,6 +27,15 @@ class Settings(BaseSettings):
     nvidia_nim_base_url: str = Field(default="https://integrate.api.nvidia.com/v1", validation_alias="NVIDIA_NIM_BASE_URL")
     ai_timeout_seconds: float = 120.0
 
+    rag_enabled: bool = Field(default=True, validation_alias="RAG_ENABLED")
+    nvidia_embedding_model: str = Field(default="nvidia/nv-embedqa-e5-v5", validation_alias="NVIDIA_EMBEDDING_MODEL")
+    rag_top_k: int = 4
+    rag_min_score: float = 0.25
+    rag_chunk_chars: int = 1000
+    rag_max_docs: int = 10
+    rag_max_chunks: int = 1200
+    rag_context_max_chars: int = 6000
+
     simple_model: str = "llama-3.1-8b-instant"
     balanced_model: str = "llama-3.3-70b-versatile"
     coding_model: str = "deepseek/deepseek-coder"
