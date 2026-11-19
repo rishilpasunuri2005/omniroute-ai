@@ -5,6 +5,7 @@ ranks the requesting user's chunks by cosine similarity in Python. That is
 plenty for a personal library (capped per user) and works on Postgres and the
 SQLite fallback alike.
 """
+import logging
 import math
 import re
 from collections.abc import Awaitable, Callable
@@ -16,6 +17,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import Settings
 from app.models.knowledge import KnowledgeChunk, KnowledgeDocument
+
+logger = logging.getLogger(__name__)
 
 EMBED_BATCH = 16
 
@@ -235,6 +238,8 @@ async def retrieve_context(
         if embedding and len(embedding) == len(query_vector)
     ]
     scored.sort(key=lambda chunk: chunk.score, reverse=True)
+    if scored:
+        logger.info("knowledge_retrieval chunks=%d top_score=%.3f", len(scored), scored[0].score)
     return [chunk for chunk in scored[: settings.rag_top_k] if chunk.score >= settings.rag_min_score]
 
 

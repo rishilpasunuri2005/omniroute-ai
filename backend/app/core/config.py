@@ -30,7 +30,7 @@ class Settings(BaseSettings):
     rag_enabled: bool = Field(default=True, validation_alias="RAG_ENABLED")
     nvidia_embedding_model: str = Field(default="nvidia/nemotron-3-embed-1b", validation_alias="NVIDIA_EMBEDDING_MODEL")
     rag_top_k: int = 4
-    rag_min_score: float = 0.25
+    rag_min_score: float = 0.0
     rag_chunk_chars: int = 1000
     rag_max_docs: int = 10
     rag_max_chunks: int = 1200
