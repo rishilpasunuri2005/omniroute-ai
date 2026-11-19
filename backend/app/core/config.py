@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     ai_timeout_seconds: float = 120.0
 
     rag_enabled: bool = Field(default=True, validation_alias="RAG_ENABLED")
-    nvidia_embedding_model: str = Field(default="nvidia/nv-embedqa-e5-v5", validation_alias="NVIDIA_EMBEDDING_MODEL")
+    nvidia_embedding_model: str = Field(default="nvidia/nemotron-3-embed-1b", validation_alias="NVIDIA_EMBEDDING_MODEL")
     rag_top_k: int = 4
     rag_min_score: float = 0.25
     rag_chunk_chars: int = 1000

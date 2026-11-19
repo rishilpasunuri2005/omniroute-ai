@@ -122,13 +122,15 @@ async def embed_texts(settings: Settings, texts: list[str], input_type: str) -> 
                         "input": batch,
                         "input_type": input_type,
                         "encoding_format": "float",
-                        "truncate": "END",
                     },
                 )
             except httpx.HTTPError as exc:
                 raise EmbeddingError("Embedding service unreachable") from exc
             if response.status_code != 200:
-                raise EmbeddingError(f"Embedding request failed ({response.status_code})")
+                raise EmbeddingError(
+                    f"Embedding request failed ({response.status_code}) model={settings.nvidia_embedding_model} "
+                    f"body={response.text[:200]!r}"
+                )
             data = sorted(response.json().get("data", []), key=lambda item: item.get("index", 0))
             vectors.extend(item["embedding"] for item in data)
     if len(vectors) != len(texts):
